@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khám Phá Nguyên Tử | 2025</title>
+    <title>Khám Phá Nguyên Tử | Học Hóa Học Thú Vị</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2b6cb0;
-            --secondary: #38a169;
+            --primary: #4299e1;
+            --secondary: #48bb78;
             --accent: #3182ce;
             --light: #ffffff;
-            --light-bg: #f7fafc;
+            --light-bg: #ebf8ff;
             --text: #2d3748;
+            --header-text: #2b6cb0;
             --success: #38a169;
             --warning: #dd6b20;
             --danger: #e53e3e;
@@ -31,97 +32,69 @@
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: white;
-            padding: 30px 0;
+            background: var(--light);
+            color: var(--header-text);
+            padding: 20px 0;
             text-align: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: relative;
-            overflow: hidden;
-        }
-        
-        header::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%) 0 0,
-                radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%) 50% 50%;
-            background-size: 100px 100px;
-            animation: atomicAnimation 20s linear infinite;
-            opacity: 0.3;
-        }
-        
-        @keyframes atomicAnimation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            z-index: 100;
         }
         
         .logo-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
-            z-index: 2;
         }
         
         .logo {
-            height: 100px;
+            height: 80px;
             margin-right: 20px;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
         }
         
         h1 {
             margin: 0;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-family: 'Space Grotesk', sans-serif;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
             letter-spacing: 1px;
-            color: white;
+            color: var(--header-text);
         }
         
         .tagline {
-            font-size: 1.2rem;
-            margin-top: 10px;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-            font-weight: 300;
+            font-size: 1.1rem;
+            margin-top: 8px;
+            font-weight: 500;
         }
         
         .container {
-            max-width: 1400px;
-            margin: 50px auto;
+            max-width: 1200px;
+            margin: 30px auto;
             padding: 0 30px;
         }
         
-        .modes {
+        .main-content {
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 40px;
-            margin-top: 50px;
+            flex-direction: column;
+            align-items: center;
         }
         
-        .mode-card {
+        .exploration-card {
             background: var(--light);
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            width: 45%;
-            min-width: 350px;
+            width: 90%;
+            max-width: 900px;
             padding: 40px;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
             border: 1px solid rgba(0, 0, 0, 0.05);
             position: relative;
             overflow: hidden;
+            margin-bottom: 40px;
         }
         
-        .mode-card::before {
+        .exploration-card::before {
             content: "";
             position: absolute;
             top: 0;
@@ -131,48 +104,78 @@
             background: linear-gradient(to right, var(--primary), var(--secondary));
         }
         
-        .mode-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-        
-        .mode-card h2 {
+        .exploration-card h2 {
             color: var(--primary);
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-top: 0;
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 15px;
+            text-align: center;
+            justify-content: center;
         }
         
-        .mode-card h2 i {
+        .exploration-card h2 i {
             color: var(--secondary);
         }
         
-        .mode-card ul {
-            padding-left: 10px;
-            list-style-type: none;
+        .learning-objectives {
+            background: rgba(66, 153, 225, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
         }
         
-        .mode-card li {
-            margin-bottom: 15px;
+        .learning-objectives h3 {
+            color: var(--primary);
+            margin-top: 0;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .learning-objectives ul {
+            padding-left: 20px;
+        }
+        
+        .learning-objectives li {
+            margin-bottom: 10px;
             line-height: 1.6;
-            position: relative;
-            padding-left: 35px;
-            color: var(--text);
         }
         
-        .mode-card li::before {
-            content: "\f00c";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            top: 2px;
-            color: var(--success);
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .topic-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .topic-card h3 {
+            color: var(--primary);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .topic-card p {
+            color: var(--text);
+            opacity: 0.9;
         }
         
         .btn {
@@ -186,20 +189,19 @@
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            margin-top: 25px;
+            margin-top: 20px;
             transition: all 0.3s;
             border: none;
             cursor: pointer;
             font-size: 1.1rem;
-            box-shadow: 0 5px 15px rgba(43, 108, 176, 0.3);
-            width: 100%;
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.3);
             letter-spacing: 0.5px;
             font-family: 'Space Grotesk', sans-serif;
         }
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(43, 108, 176, 0.4);
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.4);
         }
         
         .btn i {
@@ -207,7 +209,7 @@
         }
         
         footer {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background: var(--primary);
             color: white;
             text-align: center;
             padding: 30px 0;
@@ -232,44 +234,19 @@
             margin-top: 20px;
         }
         
-        /* Animation for cards */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .mode-card:nth-child(1) {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .mode-card:nth-child(2) {
-            animation: float 6s ease-in-out infinite 1s;
-        }
-        
         /* Responsive design */
-        @media (max-width: 992px) {
-            .modes {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .mode-card {
-                width: 80%;
-            }
-        }
-        
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             
-            .mode-card {
-                min-width: 280px;
+            .exploration-card {
+                width: 95%;
                 padding: 30px;
             }
             
-            .mode-card h2 {
-                font-size: 1.5rem;
+            .exploration-card h2 {
+                font-size: 1.8rem;
             }
         }
         
@@ -284,12 +261,11 @@
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
             
-            .mode-card {
-                width: 95%;
-                padding: 25px;
+            .tagline {
+                font-size: 1rem;
             }
         }
     </style>
@@ -297,50 +273,61 @@
 <body>
     <header>
         <div class="logo-container">
-            <!-- Add your logo here by replacing the src with your logo path -->
-            <img src="YOUR_LOGO_LINK_HERE" alt="Atomic Exploration Logo" class="logo">
+            <img src="https://hmtuan002.github.io/H33/logo-r.png" alt="Khám Phá Nguyên Tử" class="logo">
             <div>
                 <h1>KHÁM PHÁ NGUYÊN TỬ</h1>
-                <div class="tagline">Công cụ tương tác học tập Vật lý hạt nhân 2025</div>
+                <div class="tagline">Giúp học sinh THCS và THPT tìm hiểu hóa học nguyên tử một cách thú vị</div>
             </div>
         </div>
     </header>
     
     <div class="container">
-        <p style="text-align: center; font-size: 1.2rem; max-width: 800px; margin: 0 auto; line-height: 1.7; color: var(--text);">
-            <i class="fas fa-atom" style="color: var(--primary); margin-right: 10px;"></i>
-            Chào mừng bạn đến với thế giới lượng tử! Khám phá cấu trúc nguyên tử và hạt nhân thông qua mô phỏng tương tác trực quan.
-        </p>
-        
-        <div class="modes">
-            <div class="mode-card" onclick="window.location.href='chedo1.html'">
-                <h2><i class="fas fa-atom"></i> Khám phá hạt nhân</h2>
-                <ul>
-                    <li>Xây dựng hạt nhân bằng cách thêm proton và neutron</li>
-                    <li>Xác định đồng vị ổn định hoặc phóng xạ</li>
-                    <li>Hiển thị các dạng phân rã có thể xảy ra (α, β⁻, β⁺, phát xạ proton/neutron)</li>
-                    <li>Thời gian bán rã trên thang đo ổn định</li>
-                    <li>Mô hình lớp vỏ hạt nhân (Nuclear Shell Model)</li>
-                    <li>Biểu đồ hạt nhân con (Partial Nuclide Chart)</li>
-                </ul>
-                <button class="btn">
-                    <i class="fas fa-rocket"></i> Bắt đầu khám phá
-                </button>
-            </div>
-            
-            <div class="mode-card" onclick="window.location.href='chedo2.html'">
-                <h2><i class="fas fa-flask"></i> Đồng vị & Nguyên tử khối</h2>
-                <ul>
-                    <li>Tạo đồng vị bằng cách thêm proton, neutron và electron</li>
-                    <li>Hiển thị thông tin đồng vị (tên, trạng thái ổn định, số khối)</li>
-                    <li>Vị trí nguyên tố trong bảng tuần hoàn</li>
-                    <li>Tạo hỗn hợp đồng vị theo tỷ lệ tùy chọn hoặc tự nhiên</li>
-                    <li>Phần trăm thành phần của mỗi đồng vị</li>
-                    <li>Tính khối lượng nguyên tử trung bình</li>
-                </ul>
-                <button class="btn">
-                    <i class="fas fa-vial"></i> Bắt đầu thí nghiệm
-                </button>
+        <div class="main-content">
+            <div class="exploration-card">
+                <h2><i class="fas fa-atom"></i> Mô Phỏng Nguyên Tử Tương Tác</h2>
+                
+                <p style="text-align: center; font-size: 1.1rem; line-height: 1.7;">
+                    Công cụ tương tác giúp bạn khám phá cấu trúc nguyên tử, tạo đồng vị và hiểu rõ hơn về thế giới vi mô đầy thú vị.
+                </p>
+                
+                <div class="learning-objectives">
+                    <h3><i class="fas fa-bullseye"></i> Mục tiêu học tập</h3>
+                    <ul>
+                        <li>Sử dụng số proton, neutron và electron để vẽ mô hình nguyên tử</li>
+                        <li>Xác định nguyên tố và tính khối lượng, điện tích</li>
+                        <li>Dự đoán sự thay đổi khi thêm/bớt hạt cơ bản</li>
+                        <li>Định nghĩa proton, neutron, electron, nguyên tử và ion</li>
+                        <li>Tạo ký hiệu đồng vị cho nguyên tử</li>
+                    </ul>
+                </div>
+                
+                <div class="topics-grid">
+                    <div class="topic-card">
+                        <h3><i class="fas fa-circle"></i> Nguyên Tử</h3>
+                        <p>Khám phá cấu trúc cơ bản của nguyên tử và các thành phần cấu tạo nên vật chất</p>
+                    </div>
+                    
+                    <div class="topic-card">
+                        <h3><i class="fas fa-sitemap"></i> Cấu Trúc Nguyên Tử</h3>
+                        <p>Tìm hiểu về sự sắp xếp của electron trong các lớp vỏ nguyên tử</p>
+                    </div>
+                    
+                    <div class="topic-card">
+                        <h3><i class="fas fa-hashtag"></i> Ký Hiệu Đồng Vị</h3>
+                        <p>Học cách viết ký hiệu đồng vị và hiểu ý nghĩa của chúng</p>
+                    </div>
+                    
+                    <div class="topic-card">
+                        <h3><i class="fas fa-circle-nodes"></i> Hạt Nhân Nguyên Tử</h3>
+                        <p>Khám phá cấu trúc hạt nhân và tương tác giữa proton và neutron</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="window.location.href='run.html'">
+                        <i class="fas fa-play"></i> Bắt Đầu Khám Phá
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -350,7 +337,7 @@
             <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
         </div>
         <div class="copyright">
-            &copy; 2025 Khám Phá Nguyên Tử. Bản quyền thuộc về nhóm phát triển giáo dục STEM.
+            &copy; 2025 Khám Phá Nguyên Tử - Công cụ học tập hóa học tương tác
         </div>
     </footer>
 </body>
