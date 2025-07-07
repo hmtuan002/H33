@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận Diện Khuôn Mặt</title>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .camera-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .face-list-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        video {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        .input-group {
+            margin: 15px 0;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        #recognitionResult {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e8f0fe;
+            border-radius: 8px;
+            color: #1a73e8;
+        }
+        #faceList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .face-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .face-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .face-item button {
+            width: 100%;
+            padding: 5px;
+            font-size: 14px;
+            background-color: #ea4335;
+        }
+        .face-item button:hover {
+            background-color: #d33426;
+        }
+        h2 {
+            color: #5f6368;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="camera-section">
+            <video id="video" width="500" height="375" autoplay muted></video>
+            
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="Nhập tên người này">
+                <button id="captureBtn">Lưu người này</button>
+            </div>
+            
+            <div id="recognitionResult">Đang chờ nhận diện...</div>
+        </div>
+        
+        <div class="face-list-section">
+            <h2>Danh sách người đã lưu</h2>
+            <div id="faceList"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const video = document.getElementById('video');
+        const nameInput = document.getElementById('nameInput');
+        const captureBtn = document.getElementById('captureBtn');
+        const faceList = document.getElementById('faceList');
+        const recognitionResult = document.getElementById('recognitionResult');
+        
+        // Variables
+        let stream = null;
+        let isRecognizing = false;
+        let recognitionInterval = null;
+        
+        // Load face-api.js models
+        async function loadModels() {
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models');
+            console.log('Đã tải xong mô hình nhận diện');
+        }
+        
+        // Start camera automatically
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                startRecognition(); // Bắt đầu nhận diện ngay khi camera bật
+            } catch (err) {
+                console.error("Lỗi khi truy cập camera: ", err);
+                recognitionResult.textContent = "Không thể truy cập camera. Vui lòng cho phép sử dụng camera.";
+            }
+        }
+        
+        // Capture face and save to local storage
+        async function captureFace() {
+            if (!nameInput.value.trim()) {
+                alert('Vui lòng nhập tên');
+                return;
+            }
+            
+            if (!stream) {
+                alert('Camera chưa sẵn sàng');
+                return;
+            }
+            
+            // Tạo canvas tạm để chụp ảnh
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Phát hiện khuôn mặt
+            const detections = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks()
+                .withFaceDescriptors();
+            
+            if (detections.length === 0) {
+                alert('Không phát hiện khuôn mặt. Vui lòng thử lại.');
+                return;
+            }
+            
+            // Lưu dữ liệu khuôn mặt
+            const faceData = {
+                name: nameInput.value.trim(),
+                descriptor: Array.from(detections[0].descriptor),
+                image: canvas.toDataURL('image/png')
+            };
+            
+            // Lấy danh sách khuôn mặt đã lưu hoặc tạo mới
+            const storedFaces = JSON.parse(localStorage.getItem('faces')) || [];
+            storedFaces.push(faceData);
+            localStorage.setItem('faces', JSON.stringify(storedFaces));
+            
+            // Cập nhật danh sách hiển thị
+            updateFaceList();
+            nameInput.value = '';
+            
+            alert('Đã lưu khuôn mặt thành công!');
+        }
+        
+        // Hiển thị danh sách khuôn mặt đã lưu
+        function updateFaceList() {
+            const storedFaces = JSON.parse(localStorage.getItem('faces')) || [];
+            faceList.innerHTML = '';
+            
+            if (storedFaces.length === 0) {
+                faceList.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Chưa có dữ liệu khuôn mặt</p>';
+                return;
+            }
+            
+            storedFaces.forEach((face, index) => {
+                const faceItem = document.createElement('div');
+                faceItem.className = 'face-item';
+                
+                const img = document.createElement('img');
+                img.src = face.image;
+                
+                const name = document.createElement('div');
+                name.textContent = face.name;
+                name.style.margin = '5px 0';
+                name.style.fontWeight = 'bold';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Xóa';
+                deleteBtn.onclick = () => deleteFace(index);
+                
+                faceItem.appendChild(img);
+                faceItem.appendChild(name);
+                faceItem.appendChild(deleteBtn);
+                faceList.appendChild(faceItem);
+            });
+        }
+        
+        // Xóa khuôn mặt khỏi bộ nhớ
+        function deleteFace(index) {
+            if (confirm('Bạn có chắc muốn xóa khuôn mặt này?')) {
+                const storedFaces = JSON.parse(localStorage.getItem('faces')) || [];
+                storedFaces.splice(index, 1);
+                localStorage.setItem('faces', JSON.stringify(storedFaces));
+                updateFaceList();
+            }
+        }
+        
+        // Bắt đầu nhận diện khuôn mặt
+        async function startRecognition() {
+            const storedFaces = JSON.parse(localStorage.getItem('faces')) || [];
+            if (storedFaces.length === 0) {
+                recognitionResult.textContent = 'Chưa có dữ liệu khuôn mặt để nhận diện';
+                return;
+            }
+            
+            // Tạo bộ mô tả khuôn mặt đã gán nhãn
+            const labeledDescriptors = storedFaces.map(face => {
+                return new faceapi.LabeledFaceDescriptors(
+                    face.name,
+                    [new Float32Array(face.descriptor)]
+                );
+            });
+            
+            const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors);
+            
+            isRecognizing = true;
+            
+            recognitionInterval = setInterval(async () => {
+                try {
+                    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                        .withFaceLandmarks()
+                        .withFaceDescriptors();
+                    
+                    if (detections.length > 0) {
+                        const bestMatch = faceMatcher.findBestMatch(detections[0].descriptor);
+                        const confidence = Math.round((1 - bestMatch.distance) * 100);
+                        
+                        if (confidence > 60) { // Ngưỡng tin cậy 60%
+                            recognitionResult.textContent = `Nhận diện: ${bestMatch.label} (độ chính xác ${confidence}%)`;
+                        } else {
+                            recognitionResult.textContent = 'Không nhận diện được (độ chính xác thấp)';
+                        }
+                    } else {
+                        recognitionResult.textContent = 'Không phát hiện khuôn mặt';
+                    }
+                } catch (error) {
+                    console.error('Lỗi nhận diện:', error);
+                    recognitionResult.textContent = 'Lỗi khi nhận diện';
+                }
+            }, 1000);
+        }
+        
+        // Dừng nhận diện khuôn mặt
+        function stopRecognition() {
+            isRecognizing = false;
+            clearInterval(recognitionInterval);
+        }
+        
+        // Event listeners
+        captureBtn.addEventListener('click', captureFace);
+        
+        // Khởi động ứng dụng
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadModels();
+            startCamera();
+            updateFaceList();
+        });
+        
+        // Dọn dẹp khi đóng trang
+        window.addEventListener('beforeunload', () => {
+            stopRecognition();
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
