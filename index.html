@@ -24,6 +24,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
         }
         .face-list-section {
             background-color: white;
@@ -37,6 +38,14 @@
             border-radius: 8px;
             display: block;
             margin: 0 auto;
+        }
+        canvas {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 500px;
+            width: 100%;
         }
         .input-group {
             margin: 15px 0;
@@ -115,12 +124,29 @@
             color: #666;
             font-style: italic;
         }
+        .people-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .detection-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="camera-section">
             <video id="video" width="500" height="375" autoplay muted></video>
+            <canvas id="overlay"></canvas>
             
             <div class="input-group">
                 <input type="text" id="nameInput" placeholder="Nhập tên người này">
@@ -128,6 +154,7 @@
             </div>
             
             <div id="recognitionResult">Đang khởi động camera...</div>
+            <div id="detectionInfo" class="detection-info"></div>
         </div>
         
         <div class="face-list-section">
@@ -139,16 +166,19 @@
     <script>
         // DOM elements
         const video = document.getElementById('video');
+        const overlay = document.getElementById('overlay');
         const nameInput = document.getElementById('nameInput');
         const captureBtn = document.getElementById('captureBtn');
         const faceList = document.getElementById('faceList');
         const recognitionResult = document.getElementById('recognitionResult');
+        const detectionInfo = document.getElementById('detectionInfo');
         
         // Variables
         let stream = null;
         let isRecognizing = false;
         let recognitionInterval = null;
         let faceMatcher = null;
+        let peopleCount = 0;
         
         // Load face-api.js models
         async function loadModels() {
@@ -316,13 +346,42 @@
             }
         }
         
+        // Vẽ khung và thông tin lên canvas
+        function drawDetections(detections, recognizedFaces = []) {
+            const canvas = overlay;
+            const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
+            
+            // Đặt kích thước canvas bằng với video
+            faceapi.matchDimensions(canvas, displaySize);
+            
+            // Xóa canvas trước khi vẽ
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Đổi kích thước phát hiện để phù hợp với hiển thị
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+            
+            // Vẽ khung và điểm mốc cho mỗi khuôn mặt
+            faceapi.draw.drawDetections(canvas, resizedDetections);
+            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+            
+            // Hiển thị thông tin nhận diện nếu có
+            resizedDetections.forEach((detection, i) => {
+                const box = detection.detection.box;
+                const text = recognizedFaces[i] ? 
+                    `${recognizedFaces[i].name} (${recognizedFaces[i].confidence}%)` : 
+                    "Không xác định";
+                
+                const drawBox = new faceapi.draw.DrawBox(box, { 
+                    label: text,
+                    boxColor: recognizedFaces[i] ? 'green' : 'red'
+                });
+                drawBox.draw(canvas);
+            });
+        }
+        
         // Bắt đầu nhận diện khuôn mặt
         function startRecognition() {
-            if (!faceMatcher) {
-                recognitionResult.textContent = "Không có dữ liệu khuôn mặt để nhận diện";
-                return;
-            }
-            
             if (isRecognizing) {
                 return;
             }
@@ -335,17 +394,43 @@
                         .withFaceLandmarks()
                         .withFaceDescriptors();
                     
+                    // Cập nhật số lượng người
+                    peopleCount = detections.length;
+                    detectionInfo.textContent = `Phát hiện ${peopleCount} người trong khung hình`;
+                    
                     if (detections.length > 0) {
-                        const bestMatch = faceMatcher.findBestMatch(detections[0].descriptor);
-                        const confidence = Math.round((1 - bestMatch.distance) * 100);
-                        
-                        if (confidence > 60) { // Ngưỡng tin cậy 60%
-                            recognitionResult.textContent = `Nhận diện: ${bestMatch.label} (độ chính xác ${confidence}%)`;
+                        if (faceMatcher) {
+                            const recognizedFaces = detections.map(detection => {
+                                const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+                                const confidence = Math.round((1 - bestMatch.distance) * 100);
+                                
+                                if (confidence > 60) { // Ngưỡng tin cậy 60%
+                                    return {
+                                        name: bestMatch.label,
+                                        confidence: confidence
+                                    };
+                                } else {
+                                    return null;
+                                }
+                            });
+                            
+                            // Hiển thị kết quả nhận diện
+                            const recognizedCount = recognizedFaces.filter(f => f !== null).length;
+                            if (recognizedCount > 0) {
+                                recognitionResult.textContent = `Nhận diện được ${recognizedCount}/${peopleCount} người`;
+                            } else {
+                                recognitionResult.textContent = `Phát hiện ${peopleCount} người nhưng không nhận diện được ai`;
+                            }
+                            
+                            // Vẽ khung và thông tin nhận diện
+                            drawDetections(detections, recognizedFaces);
                         } else {
-                            recognitionResult.textContent = 'Không nhận diện được (độ chính xác thấp)';
+                            recognitionResult.textContent = `Phát hiện ${peopleCount} người (chưa có dữ liệu để nhận diện)`;
+                            drawDetections(detections);
                         }
                     } else {
                         recognitionResult.textContent = 'Không phát hiện khuôn mặt';
+                        drawDetections([]); // Xóa các khung nếu không có khuôn mặt
                     }
                 } catch (error) {
                     console.error('Lỗi nhận diện:', error);
