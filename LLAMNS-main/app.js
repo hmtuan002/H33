@@ -36,10 +36,30 @@ const MERCHANT = {
   name: "SKIN MERCHANT",
 };
 
+// NPC Elder position - Nói về nón lá Việt Nam
+const NPC_ELDER = {
+  x: 3,
+  y: 10,
+  name: "LÃO NHÂN",
+};
+
+// Dialogue content for NPC Elder
+const DIALOGUE_CONTENT = [
+  "Chào con! Ta là người giữ gìn truyền thống làng này...",
+  "Con có biết về chiếc nón lá Việt Nam không?",
+  "Nón lá đã có từ hàng nghìn năm trước, là biểu tượng của người phụ nữ Việt Nam.",
+  "Nón được làm từ lá cọ hoặc lá dừa, khung tre, rất bền và nhẹ.",
+  "Ngày xưa, nón lá che nắng che mưa cho người nông dân trên đồng ruộng.",
+  "Ngày nay, nón lá còn là quà tặng ý nghĩa cho bạn bè quốc tế.",
+  "Hãy giữ gìn và trân trọng văn hóa dân tộc con nhé!",
+  "Chúc con may mắn trên hành trình của mình! 🌾"
+];
+
 //Misc Helpers
 function randomFromArray(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
+
 function getKeyString(x, y) {
   return `${x}x${y}`;
 }
@@ -57,8 +77,8 @@ function createName() {
 }
 
 function isSolid(x, y) {
-  // Check if position is merchant - merchant is not solid
-  if (x === MERCHANT.x && y === MERCHANT.y) {
+  // Check if position is merchant or NPC - they are not solid
+  if ((x === MERCHANT.x && y === MERCHANT.y) || (x === NPC_ELDER.x && y === NPC_ELDER.y)) {
     return false;
   }
   const blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
@@ -97,11 +117,21 @@ function getPurchasedSkinsFromFirebase(skins) {
   const gameContainer = document.querySelector(".game-container");
   const playerNameInput = document.querySelector("#player-name");
   const changeSkinButton = document.querySelector("#change-skin");
+  const talkNpcBtn = document.querySelector("#talk-npc-btn");
   const merchantModal = document.querySelector("#merchant-modal");
   const closeModalBtn = document.querySelector("#close-modal");
+  const npcModal = document.querySelector("#npc-modal");
+  const closeNpcModalBtn = document.querySelector("#close-npc-modal");
+  const closeDialogueBtn = document.querySelector("#close-dialogue-btn");
+  const nextDialogueBtn = document.querySelector("#next-dialogue-btn");
+  const dialogueText = document.querySelector("#dialogue-text");
   const skinShopList = document.querySelector("#skin-shop-list");
   const merchantMessage = document.querySelector("#merchant-message");
   const playerCoinsDisplay = document.querySelector("#player-coins");
+  
+  // Dialogue state
+  let currentDialogueIndex = 0;
+  let isInDialogue = false;
 
   function updatePlayerCoinsDisplay(coins) {
     if (playerCoinsDisplay) {
@@ -132,6 +162,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     }
   }
 
+  // Merchant functions
   function openMerchantModal() {
     renderSkinShop();
     merchantModal.style.display = "flex";
@@ -139,6 +170,42 @@ function getPurchasedSkinsFromFirebase(skins) {
 
   function closeMerchantModal() {
     merchantModal.style.display = "none";
+  }
+  
+  // NPC Dialogue functions
+  function openNpcModal() {
+    currentDialogueIndex = 0;
+    isInDialogue = true;
+    updateDialogueText();
+    npcModal.style.display = "flex";
+  }
+  
+  function closeNpcModal() {
+    npcModal.style.display = "none";
+    isInDialogue = false;
+    currentDialogueIndex = 0;
+  }
+  
+  function updateDialogueText() {
+    if (currentDialogueIndex < DIALOGUE_CONTENT.length) {
+      dialogueText.textContent = DIALOGUE_CONTENT[currentDialogueIndex];
+      if (currentDialogueIndex === DIALOGUE_CONTENT.length - 1) {
+        nextDialogueBtn.textContent = "🏮 Hoàn thành 🏮";
+      } else {
+        nextDialogueBtn.textContent = "➡ Tiếp theo";
+      }
+    } else {
+      closeNpcModal();
+    }
+  }
+  
+  function nextDialogue() {
+    if (currentDialogueIndex < DIALOGUE_CONTENT.length - 1) {
+      currentDialogueIndex++;
+      updateDialogueText();
+    } else if (currentDialogueIndex === DIALOGUE_CONTENT.length - 1) {
+      closeNpcModal();
+    }
   }
 
   function renderSkinShop() {
@@ -189,7 +256,6 @@ function getPurchasedSkinsFromFirebase(skins) {
       if (!buttonDisabled) {
         actionBtn.addEventListener("click", () => {
           if (isOwned) {
-            // Equip owned skin
             playerRef.update({
               color: color,
             });
@@ -199,7 +265,6 @@ function getPurchasedSkinsFromFirebase(skins) {
             }, 2000);
             renderSkinShop();
           } else if (playerCoins >= price) {
-            // Purchase new skin
             const updatedSkins = { ...purchasedSkins, [color]: true };
             playerRef.update({
               purchasedSkins: updatedSkins,
@@ -230,8 +295,49 @@ function getPurchasedSkinsFromFirebase(skins) {
       openMerchantModal();
     }
   }
+  
+  function checkNpcInteraction() {
+    const playerData = players[playerId];
+    if (playerData && playerData.x === NPC_ELDER.x && playerData.y === NPC_ELDER.y) {
+      openNpcModal();
+    }
+  }
+
+  // Movement handling - supports both keyboard and joystick
+  let currentMovement = { x: 0, y: 0 };
+  let movementInterval = null;
+  
+  function processMovement() {
+    if (currentMovement.x !== 0 || currentMovement.y !== 0) {
+      handleArrowPress(currentMovement.x, currentMovement.y);
+    }
+  }
+  
+  function startMovementLoop() {
+    if (movementInterval) return;
+    movementInterval = setInterval(() => {
+      processMovement();
+    }, 100);
+  }
+  
+  function stopMovementLoop() {
+    if (movementInterval) {
+      clearInterval(movementInterval);
+      movementInterval = null;
+    }
+  }
+  
+  function setMovement(x, y) {
+    currentMovement = { x, y };
+    if ((x !== 0 || y !== 0) && !movementInterval) {
+      startMovementLoop();
+    } else if (x === 0 && y === 0 && movementInterval) {
+      stopMovementLoop();
+    }
+  }
 
   function handleArrowPress(xChange = 0, yChange = 0) {
+    if (!players[playerId]) return;
     const newX = players[playerId].x + xChange;
     const newY = players[playerId].y + yChange;
     if (!isSolid(newX, newY)) {
@@ -246,6 +352,7 @@ function getPurchasedSkinsFromFirebase(skins) {
       playerRef.set(players[playerId]);
       attemptGrabCoin(newX, newY);
       checkMerchantInteraction();
+      checkNpcInteraction();
     }
   }
 
@@ -266,12 +373,86 @@ function getPurchasedSkinsFromFirebase(skins) {
     merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     gameContainer.appendChild(merchantElement);
   }
+  
+  function createNpcElderElement() {
+    const npcElement = document.createElement("div");
+    npcElement.classList.add("Character", "grid-cell", "npc-elder");
+    npcElement.innerHTML = `
+      <div class="Character_shadow grid-cell"></div>
+      <div class="Character_sprite grid-cell"></div>
+      <div class="Character_name-container">
+        <span class="Character_name">${NPC_ELDER.name}</span>
+      </div>
+    `;
+    npcElement.setAttribute("data-color", "green");
+    npcElement.setAttribute("data-direction", "right");
+    const left = 16 * NPC_ELDER.x + "px";
+    const top = 16 * NPC_ELDER.y - 4 + "px";
+    npcElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+    gameContainer.appendChild(npcElement);
+  }
+
+  // Setup mobile controls
+  function setupMobileControls() {
+    // Joystick
+    const joystickBase = document.getElementById("joystick-base");
+    const joystickThumb = document.getElementById("joystick-thumb");
+    
+    if (joystickBase && joystickThumb) {
+      new Joystick(joystickBase, joystickThumb, (x, y) => {
+        let moveX = 0, moveY = 0;
+        if (Math.abs(x) > Math.abs(y)) {
+          moveX = x > 0 ? 1 : (x < 0 ? -1 : 0);
+        } else {
+          moveY = y > 0 ? 1 : (y < 0 ? -1 : 0);
+        }
+        setMovement(moveX, moveY);
+      });
+    }
+    
+    // Touch buttons
+    const upBtn = document.getElementById("mobile-up");
+    const downBtn = document.getElementById("mobile-down");
+    const leftBtn = document.getElementById("mobile-left");
+    const rightBtn = document.getElementById("mobile-right");
+    
+    const addTouchButton = (btn, xMove, yMove) => {
+      if (!btn) return;
+      btn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        setMovement(xMove, yMove);
+      });
+      btn.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        setMovement(0, 0);
+      });
+      btn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        setMovement(xMove, yMove);
+      });
+      btn.addEventListener("mouseup", (e) => {
+        e.preventDefault();
+        setMovement(0, 0);
+      });
+    };
+    
+    addTouchButton(upBtn, 0, -1);
+    addTouchButton(downBtn, 0, 1);
+    addTouchButton(leftBtn, -1, 0);
+    addTouchButton(rightBtn, 1, 0);
+  }
 
   function initGame() {
+    // Keyboard controls - Arrow keys and WASD
     new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1));
     new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1));
     new KeyPressListener("ArrowLeft", () => handleArrowPress(-1, 0));
     new KeyPressListener("ArrowRight", () => handleArrowPress(1, 0));
+    
+    new KeyPressListener("KeyW", () => handleArrowPress(0, -1));
+    new KeyPressListener("KeyS", () => handleArrowPress(0, 1));
+    new KeyPressListener("KeyA", () => handleArrowPress(-1, 0));
+    new KeyPressListener("KeyD", () => handleArrowPress(1, 0));
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allCoinsRef = firebase.database().ref(`coins`);
@@ -366,10 +547,15 @@ function getPurchasedSkinsFromFirebase(skins) {
       });
     });
 
-    // Change Skin button - opens merchant modal
     if (changeSkinButton) {
       changeSkinButton.addEventListener("click", () => {
         openMerchantModal();
+      });
+    }
+    
+    if (talkNpcBtn) {
+      talkNpcBtn.addEventListener("click", () => {
+        openNpcModal();
       });
     }
 
@@ -378,14 +564,22 @@ function getPurchasedSkinsFromFirebase(skins) {
       if (e.target === merchantModal) {
         closeMerchantModal();
       }
+      if (e.target === npcModal) {
+        closeNpcModal();
+      }
     });
+    
+    closeNpcModalBtn.addEventListener("click", closeNpcModal);
+    closeDialogueBtn.addEventListener("click", closeNpcModal);
+    nextDialogueBtn.addEventListener("click", nextDialogue);
 
     createMerchantElement();
+    createNpcElderElement();
     placeCoin();
+    setupMobileControls();
   }
 
   firebase.auth().onAuthStateChanged((user) => {
-    console.log(user);
     if (user) {
       playerId = user.uid;
       playerRef = firebase.database().ref(`players/${playerId}`);
@@ -406,7 +600,6 @@ function getPurchasedSkinsFromFirebase(skins) {
         purchasedSkins: { blue: true },
       });
 
-      // Listen for coin updates to display
       playerRef.on("value", (snapshot) => {
         const data = snapshot.val();
         if (data && playerCoinsDisplay) {
