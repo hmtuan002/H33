@@ -123,16 +123,20 @@ html, body {
   width: 16px;
   height: 16px;
 }
+
 .Character {
   transition: transform 0.15s ease-out;
   position: absolute;
 }
+
 .Character.you {
   z-index: 2;
 }
+
 .Character.you .Character_you-arrow {
   display: block;
 }
+
 .Character_you-arrow {
   display: none;
   position: absolute;
@@ -142,34 +146,49 @@ html, body {
   height: 5px;
   background: url(images/arrow.png) no-repeat no-repeat;
 }
+
 .Character_sprite {
   overflow: hidden;
   top: -3px;
   background: url(images/characters.png);
+  position: absolute;
+  width: 16px;
+  height: 16px;
 }
+
 .Character[data-direction="right"] .Character_sprite {
   background-position-x: 16px;
 }
+
 .Character[data-color="blue"] .Character_sprite {
   background-position-y: 0px;
 }
+
 .Character[data-color="red"] .Character_sprite {
   background-position-y: -16px;
 }
+
 .Character[data-color="orange"] .Character_sprite {
   background-position-y: -32px;
 }
+
 .Character[data-color="yellow"] .Character_sprite {
   background-position-y: -48px;
 }
+
 .Character[data-color="green"] .Character_sprite {
   background-position-y: -64px;
 }
+
 .Character[data-color="purple"] .Character_sprite {
   background-position-y: -80px;
 }
+
 .Character_shadow {
   background: url(images/shadow.png) no-repeat no-repeat;
+  position: absolute;
+  width: 16px;
+  height: 16px;
 }
 
 .Character_name-container {
@@ -184,49 +203,46 @@ html, body {
   font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
+  z-index: 10;
 }
+
 .Character_coins {
   margin-left: 1px;
   color: gold;
 }
 
-/* Merchant - FIXED POSITION */
+/* Merchant - QUAN TRỌNG: KHÔNG để animation làm sai vị trí */
 .merchant {
   position: absolute;
   z-index: 2;
   cursor: pointer;
   animation: merchantBob 0.6s ease-in-out infinite alternate;
+  transform-origin: center center;
 }
+
 .merchant .Character_name-container {
   background: #8B4513;
   font-size: 4px;
   top: -14px;
 }
 
-/* NPC Elder - FIXED POSITION - SỬA LỖI QUAN TRỌNG */
+/* NPC Elder - QUAN TRỌNG: SỬA HOÀN TOÀN để không bị lệch vị trí */
 .npc-elder {
   position: absolute;
   z-index: 2;
   cursor: pointer;
   animation: elderBob 0.8s ease-in-out infinite alternate;
+  transform-origin: center center;
 }
+
 .npc-elder .Character_name-container {
   background: #2E7D32;
   font-size: 4px;
   top: -14px;
 }
 
-/* SỬA LẠI ANIMATION - KHÔNG DÙNG translate3d CỐ ĐỊNH */
+/* Animation chỉ nhún lên xuống, KHÔNG làm thay đổi vị trí X */
 @keyframes elderBob {
-  0% {
-    transform: translateY(0px);
-  }
-  100% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes merchantBob {
   0% {
     transform: translateY(0px);
   }
@@ -235,25 +251,46 @@ html, body {
   }
 }
 
+@keyframes merchantBob {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-2px);
+  }
+}
+
 /* Coins */
+.Coin {
+  position: absolute;
+}
+
 .Coin_sprite {
   background: url(images/coin.png) no-repeat no-repeat;
   animation: coinFloat 0.8s linear infinite alternate-reverse;
+  position: absolute;
+  width: 16px;
+  height: 16px;
 }
+
 @keyframes coinFloat {
   from { transform: translateY(0); }
   to { transform: translateY(5px); }
 }
+
 .Coin_shadow {
   background: url(images/coin-shadow.png) no-repeat no-repeat;
+  position: absolute;
+  width: 16px;
+  height: 16px;
 }
 
-/* Coordinate Display - THÊM MỚI */
+/* Coordinate Display - Hiển thị tọa độ X:Y */
 .coord-display {
   position: fixed;
   bottom: 10px;
   left: 10px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   color: #00ff88;
   font-family: monospace;
   font-size: 14px;
@@ -291,9 +328,9 @@ html, body {
   animation: modalSlideIn 0.3s ease-out;
 }
 
-/* NPC Modal Styles */
+/* NPC Modal Styles - BỎ HÌNH ẢNH NHÂN VẬT XẤU */
 .npc-modal-content {
-  max-width: 450px;
+  max-width: 500px;
   background: linear-gradient(135deg, #1a3a1a 0%, #0a2a0a 100%);
   border-color: #4CAF50;
 }
@@ -303,36 +340,23 @@ html, body {
   border-bottom-color: #4CAF50;
 }
 
-.npc-avatar {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-.npc-avatar-sprite {
-  width: 64px;
-  height: 64px;
-  background: url(images/characters.png);
-  background-position-y: -80px;
-  background-position-x: 0;
-  image-rendering: pixelated;
-  transform: scale(2);
-}
+/* ĐÃ XÓA .npc-avatar HOÀN TOÀN - không còn hình ảnh xấu nữa */
 
 .dialogue-box {
   background: rgba(0, 0, 0, 0.85);
   border-radius: 12px;
   padding: 20px;
   border: 2px solid #4CAF50;
-  min-height: 200px;
+  min-height: 180px;
 }
 
 .dialogue-text {
   color: #fff;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.6;
   margin-bottom: 20px;
-  min-height: 100px;
+  min-height: 120px;
+  font-weight: normal;
 }
 
 .dialogue-controls {
@@ -342,12 +366,13 @@ html, body {
 }
 
 .dialogue-next-btn, .dialogue-close-btn {
-  padding: 8px 20px;
+  padding: 10px 24px;
   border: none;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  font-size: 14px;
 }
 
 .dialogue-next-btn {
@@ -494,9 +519,25 @@ html, body {
   transform: none;
 }
 
+/* Player Info - GÓC TRÊN BÊN TRÁI MÀN HÌNH */
+.player-info {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 15px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  border: 1px solid #ffd700;
+  z-index: 200;
+  flex-wrap: wrap;
+}
+
 .player-info > div {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
   border-radius: 8px;
   border: 1px solid #ffd700;
 }
@@ -505,20 +546,20 @@ label {
   display: block;
   font-weight: bold;
   color: #ffd700;
-  font-size: 12px;
-  margin-bottom: 4px;
+  font-size: 10px;
+  margin-bottom: 2px;
 }
 
 input[type="text"] {
   font-family: inherit;
   font-weight: bold;
-  font-size: 14px;
-  height: 32px;
+  font-size: 12px;
+  height: 28px;
   border-radius: 4px;
   outline: 0;
   padding-left: 0.5em;
   border: 2px solid #222034;
-  width: 120px;
+  width: 100px;
   text-transform: uppercase;
   background: #fff;
 }
@@ -526,15 +567,16 @@ input[type="text"] {
 button {
   font-family: inherit;
   font-weight: bold;
-  font-size: 14px;
-  height: 32px;
-  padding: 0 12px;
+  font-size: 11px;
+  height: 28px;
+  padding: 0 10px;
   background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.2s;
   color: #333;
+  white-space: nowrap;
 }
 
 button:active {
@@ -543,11 +585,11 @@ button:active {
 
 .coin-display {
   text-align: center;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 .coin-amount {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #ffd700;
   text-shadow: 1px 1px 0 #333;
