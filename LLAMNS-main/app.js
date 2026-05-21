@@ -29,15 +29,14 @@ const SKIN_PRICES = {
   purple: 30,
 };
 
-// Merchant position - GIỮ NGUYÊN VỊ TRÍ ĐẸP
+// Merchant position - ở bên phải map
 const MERCHANT = {
   x: 12,
   y: 4,
   name: "SKIN MERCHANT",
 };
 
-// NPC Elder position - CÁCH MERCHANT 10 Ô VỀ BÊN TRÁI (từ x=12 qua x=2)
-// Kiểm tra mapData.blockedSpaces, (2,4) và (2,5) đều không bị chặn
+// NPC Elder position - ở bên trái map, cách merchant 10 ô
 const NPC_ELDER = {
   x: 2,
   y: 5,
@@ -132,6 +131,15 @@ function getPurchasedSkinsFromFirebase(skins) {
   
   // Dialogue state
   let currentDialogueIndex = 0;
+
+  // Hàm chuyển đổi tọa độ game sang pixel (do map scale 3)
+  function gameToPixel(x, y) {
+    // Mỗi ô là 16px, map scale 3 lần
+    // Ô đầu tiên của map là (1,4) tương ứng với pixel (0,0)
+    const pixelX = (x - 1) * 16;
+    const pixelY = (y - 4) * 16;
+    return { x: pixelX, y: pixelY };
+  }
 
   function updatePlayerCoinsDisplay(coins) {
     if (playerCoinsDisplay) {
@@ -372,8 +380,11 @@ function getPurchasedSkinsFromFirebase(skins) {
     `;
     merchantElement.setAttribute("data-color", "purple");
     merchantElement.setAttribute("data-direction", "right");
-    const left = 16 * MERCHANT.x + "px";
-    const top = 16 * MERCHANT.y - 4 + "px";
+    
+    // Sử dụng hàm gameToPixel để tính toán vị trí chính xác
+    const pixelPos = gameToPixel(MERCHANT.x, MERCHANT.y);
+    const left = pixelPos.x + "px";
+    const top = pixelPos.y - 4 + "px";
     merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     gameContainer.appendChild(merchantElement);
   }
@@ -390,8 +401,11 @@ function getPurchasedSkinsFromFirebase(skins) {
     `;
     npcElement.setAttribute("data-color", "green");
     npcElement.setAttribute("data-direction", "right");
-    const left = 16 * NPC_ELDER.x + "px";
-    const top = 16 * NPC_ELDER.y - 4 + "px";
+    
+    // Sử dụng hàm gameToPixel để tính toán vị trí chính xác
+    const pixelPos = gameToPixel(NPC_ELDER.x, NPC_ELDER.y);
+    const left = pixelPos.x + "px";
+    const top = pixelPos.y - 4 + "px";
     npcElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     gameContainer.appendChild(npcElement);
   }
@@ -473,8 +487,10 @@ function getPurchasedSkinsFromFirebase(skins) {
           if (coinsSpan) coinsSpan.innerText = characterState.coins;
           el.setAttribute("data-color", characterState.color);
           el.setAttribute("data-direction", characterState.direction);
-          const left = 16 * characterState.x + "px";
-          const top = 16 * characterState.y - 4 + "px";
+          
+          const pixelPos = gameToPixel(characterState.x, characterState.y);
+          const left = pixelPos.x + "px";
+          const top = pixelPos.y - 4 + "px";
           el.style.transform = `translate3d(${left}, ${top}, 0)`;
         }
       });
@@ -503,8 +519,10 @@ function getPurchasedSkinsFromFirebase(skins) {
       if (coinsSpan) coinsSpan.innerText = addedPlayer.coins;
       characterElement.setAttribute("data-color", addedPlayer.color);
       characterElement.setAttribute("data-direction", addedPlayer.direction);
-      const left = 16 * addedPlayer.x + "px";
-      const top = 16 * addedPlayer.y - 4 + "px";
+      
+      const pixelPos = gameToPixel(addedPlayer.x, addedPlayer.y);
+      const left = pixelPos.x + "px";
+      const top = pixelPos.y - 4 + "px";
       characterElement.style.transform = `translate3d(${left}, ${top}, 0)`;
       gameContainer.appendChild(characterElement);
     });
@@ -531,8 +549,9 @@ function getPurchasedSkinsFromFirebase(skins) {
         <div class="Coin_shadow grid-cell"></div>
         <div class="Coin_sprite grid-cell"></div>
       `;
-      const left = 16 * coin.x + "px";
-      const top = 16 * coin.y - 4 + "px";
+      const pixelPos = gameToPixel(coin.x, coin.y);
+      const left = pixelPos.x + "px";
+      const top = pixelPos.y - 4 + "px";
       coinElement.style.transform = `translate3d(${left}, ${top}, 0)`;
       coinElements[key] = coinElement;
       gameContainer.appendChild(coinElement);
