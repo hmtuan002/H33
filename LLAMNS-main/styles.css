@@ -18,13 +18,6 @@ html, body {
   width: 100%;
 }
 
-.game-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
 .game-container { 
   position: relative;
   width: 240px;
@@ -32,8 +25,7 @@ html, body {
   background: url(images/map.png) no-repeat no-repeat;
   transform: scale(3);
   image-rendering: pixelated;
-  transform-origin: center center;
-  margin: 0 auto;
+  transform-origin: center;
 }
 
 /* Mobile Controls */
@@ -115,35 +107,13 @@ html, body {
     transform: scale(2.2);
   }
   .player-info {
-    top: auto;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.7);
+    font-size: 10px;
+    padding: 0.5em;
+    gap: 0.5em;
   }
-  .info-section {
-    padding: 5px 10px !important;
-  }
-  button, .npc-talk-btn {
-    font-size: 11px !important;
-    padding: 0 8px !important;
-    height: 28px !important;
-  }
-  input[type="text"] {
-    font-size: 11px !important;
-    height: 28px !important;
-    width: 90px !important;
-  }
-  .coin-amount {
-    font-size: 14px !important;
-  }
-  label {
-    font-size: 9px !important;
+  button {
+    font-size: 10px;
+    padding: 0 6px;
   }
 }
 
@@ -243,13 +213,13 @@ html, body {
   top: -14px;
 }
 @keyframes npcBob {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-3px); }
+  from { transform: translateY(0px); }
+  to { transform: translateY(-4px); }
 }
 
 @keyframes merchantBob {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-3px); }
+  from { transform: translateY(0px) translate3d(192px, 60px, 0); }
+  to { transform: translateY(-3px) translate3d(192px, 60px, 0); }
 }
 
 /* Coins */
@@ -312,7 +282,7 @@ html, body {
   width: 64px;
   height: 64px;
   background: url(images/characters.png);
-  background-position-y: -64px;
+  background-position-y: -80px;
   background-position-x: 0;
   image-rendering: pixelated;
   transform: scale(2);
@@ -493,51 +463,31 @@ html, body {
   transform: none;
 }
 
-.player-info {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.player-info > div {
   background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  padding: 8px 15px;
-  z-index: 50;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: 1px solid #ffd700;
 }
 
-.info-section {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: none;
-}
-
-.info-section label {
+label {
   display: block;
   font-weight: bold;
   color: #ffd700;
-  font-size: 10px;
-  margin-bottom: 2px;
-}
-
-.npc-talk-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%) !important;
-  color: white !important;
+  font-size: 12px;
+  margin-bottom: 4px;
 }
 
 input[type="text"] {
   font-family: inherit;
   font-weight: bold;
-  font-size: 12px;
-  height: 28px;
+  font-size: 14px;
+  height: 32px;
   border-radius: 4px;
   outline: 0;
   padding-left: 0.5em;
   border: 2px solid #222034;
-  width: 100px;
+  width: 120px;
   text-transform: uppercase;
   background: #fff;
 }
@@ -545,9 +495,9 @@ input[type="text"] {
 button {
   font-family: inherit;
   font-weight: bold;
-  font-size: 12px;
-  height: 28px;
-  padding: 0 10px;
+  font-size: 14px;
+  height: 32px;
+  padding: 0 12px;
   background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
   border: none;
   border-radius: 6px;
@@ -562,11 +512,11 @@ button:active {
 
 .coin-display {
   text-align: center;
-  min-width: 70px;
+  min-width: 80px;
 }
 
 .coin-amount {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
   color: #ffd700;
   text-shadow: 1px 1px 0 #333;
