@@ -38,7 +38,7 @@ const MERCHANT = {
 
 // NPC Elder position - FIXED - ĐẢM BẢO TỌA ĐỘ TRONG MAP
 const NPC_ELDER = {
-  x: 3,
+  x: 2,
   y: 10,
   name: "LÃO NHÂN",
 };
