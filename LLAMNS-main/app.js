@@ -36,10 +36,10 @@ const MERCHANT = {
   name: "SKIN MERCHANT",
 };
 
-// NPC Elder position - Nói về nón lá Việt Nam
+// NPC Elder position - FIXED - ĐẢM BẢO TỌA ĐỘ TRONG MAP
 const NPC_ELDER = {
-  x: 2,
-  y: 11,
+  x: 3,
+  y: 10,
   name: "LÃO NHÂN",
 };
 
@@ -129,6 +129,9 @@ function getPurchasedSkinsFromFirebase(skins) {
   const merchantMessage = document.querySelector("#merchant-message");
   const playerCoinsDisplay = document.querySelector("#player-coins");
   
+  // THÊM: Coordinate display element
+  const coordDisplay = document.querySelector("#coord-display");
+  
   // Dialogue state
   let currentDialogueIndex = 0;
   let isInDialogue = false;
@@ -136,6 +139,14 @@ function getPurchasedSkinsFromFirebase(skins) {
   function updatePlayerCoinsDisplay(coins) {
     if (playerCoinsDisplay) {
       playerCoinsDisplay.textContent = coins;
+    }
+  }
+  
+  // THÊM: Function cập nhật hiển thị tọa độ
+  function updateCoordDisplay() {
+    const player = players[playerId];
+    if (player && coordDisplay) {
+      coordDisplay.innerHTML = `📍 X: ${player.x} | Y: ${player.y}`;
     }
   }
 
@@ -343,6 +354,13 @@ function getPurchasedSkinsFromFirebase(skins) {
     if (!isSolid(newX, newY)) {
       players[playerId].x = newX;
       players[playerId].y = newY;
+      
+      // THÊM: Log tọa độ ra console
+      console.log(`🎮 Player moved to: X=${newX}, Y=${newY}`);
+      
+      // THÊM: Cập nhật hiển thị tọa độ
+      updateCoordDisplay();
+      
       if (xChange === 1) {
         players[playerId].direction = "right";
       }
@@ -372,6 +390,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     const top = 16 * MERCHANT.y - 4 + "px";
     merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     gameContainer.appendChild(merchantElement);
+    console.log(`✅ Merchant created at: X=${MERCHANT.x}, Y=${MERCHANT.y}`);
   }
   
   function createNpcElderElement() {
@@ -390,6 +409,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     const top = 16 * NPC_ELDER.y - 4 + "px";
     npcElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     gameContainer.appendChild(npcElement);
+    console.log(`✅ NPC Elder created at: X=${NPC_ELDER.x}, Y=${NPC_ELDER.y}`);
   }
 
   // Setup mobile controls
@@ -443,6 +463,9 @@ function getPurchasedSkinsFromFirebase(skins) {
   }
 
   function initGame() {
+    console.log("🎮 Initializing game...");
+    console.log(`📌 NPC Elder should be at: X=${NPC_ELDER.x}, Y=${NPC_ELDER.y}`);
+    
     // Keyboard controls - Arrow keys and WASD
     new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1));
     new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1));
@@ -472,6 +495,8 @@ function getPurchasedSkinsFromFirebase(skins) {
           el.style.transform = `translate3d(${left}, ${top}, 0)`;
         }
       });
+      // Update coordinate display when players data changes
+      updateCoordDisplay();
     });
 
     allPlayersRef.on("child_added", (snapshot) => {
@@ -605,6 +630,8 @@ function getPurchasedSkinsFromFirebase(skins) {
         if (data && playerCoinsDisplay) {
           updatePlayerCoinsDisplay(data.coins);
         }
+        // Update coordinate display when player data changes
+        updateCoordDisplay();
       });
 
       playerRef.onDisconnect().remove();
