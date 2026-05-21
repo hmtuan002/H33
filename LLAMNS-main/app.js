@@ -33,29 +33,31 @@ const SKIN_PRICES = {
 const MERCHANT = {
   x: 12,
   y: 4,
-  name: "SKIN MERCHANT",
+  name: "THƯƠNG NHÂN",
 };
 
-// NPC Elder position - FIXED - ĐẢM BẢO TỌA ĐỘ TRONG MAP
+// NPC Elder position
 const NPC_ELDER = {
-  x: 2,
+  x: 3,
   y: 10,
   name: "LÃO NHÂN",
 };
 
-// Dialogue content for NPC Elder
+// Dialogue content for NPC Elder - Nội dung dài hơn, chữ to hơn
 const DIALOGUE_CONTENT = [
-  "Chào con! Ta là người giữ gìn truyền thống làng này...",
-  "Con có biết về chiếc nón lá Việt Nam không?",
-  "Nón lá đã có từ hàng nghìn năm trước, là biểu tượng của người phụ nữ Việt Nam.",
-  "Nón được làm từ lá cọ hoặc lá dừa, khung tre, rất bền và nhẹ.",
+  "Chào con! Ta là người giữ gìn truyền thống làng nghề nón lá Việt Nam.",
+  "Con có biết chiếc nón lá Việt Nam đã có từ hàng nghìn năm trước không?",
+  "Nón lá là biểu tượng đẹp đẽ của người phụ nữ Việt Nam qua bao thế hệ.",
+  "Nón được làm từ lá cọ hoặc lá dừa, khung tre được uốn khéo léo, rất bền và nhẹ.",
   "Ngày xưa, nón lá che nắng che mưa cho người nông dân trên đồng ruộng.",
-  "Ngày nay, nón lá còn là quà tặng ý nghĩa cho bạn bè quốc tế.",
-  "Hãy giữ gìn và trân trọng văn hóa dân tộc con nhé!",
-  "Chúc con may mắn trên hành trình của mình! 🌾"
+  "Người đội nón lá khi đi chợ, khi làm đồng, khi tham gia lễ hội truyền thống.",
+  "Ngày nay, nón lá còn là món quà ý nghĩa dành tặng cho bạn bè quốc tế.",
+  "Mỗi chiếc nón lá chứa đựng tâm huyết của người nghệ nhân làng nghề.",
+  "Hãy giữ gìn và trân trọng văn hóa dân tộc Việt Nam con nhé!",
+  "Chúc con luôn may mắn và thành công trên hành trình của mình! 🌾🌾🌾"
 ];
 
-//Misc Helpers
+// Misc Helpers
 function randomFromArray(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
@@ -129,7 +131,7 @@ function getPurchasedSkinsFromFirebase(skins) {
   const merchantMessage = document.querySelector("#merchant-message");
   const playerCoinsDisplay = document.querySelector("#player-coins");
   
-  // THÊM: Coordinate display element
+  // Coordinate display element
   const coordDisplay = document.querySelector("#coord-display");
   
   // Dialogue state
@@ -142,7 +144,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     }
   }
   
-  // THÊM: Function cập nhật hiển thị tọa độ
+  // Update coordinate display function
   function updateCoordDisplay() {
     const player = players[playerId];
     if (player && coordDisplay) {
@@ -242,13 +244,13 @@ function getPurchasedSkinsFromFirebase(skins) {
       let buttonDisabled = false;
       
       if (isCurrent) {
-        buttonText = "✓ EQUIPPED";
+        buttonText = "✓ ĐANG DÙNG";
         buttonDisabled = true;
       } else if (isOwned) {
-        buttonText = "EQUIP";
+        buttonText = "SỬ DỤNG";
         buttonDisabled = false;
       } else {
-        buttonText = `BUY ${price} COINS`;
+        buttonText = `MUA ${price} XU`;
         buttonDisabled = false;
       }
       
@@ -270,9 +272,9 @@ function getPurchasedSkinsFromFirebase(skins) {
             playerRef.update({
               color: color,
             });
-            merchantMessage.textContent = `✨ Equipped ${color} skin! ✨`;
+            merchantMessage.textContent = `✨ Đã trang bị skin ${color}! ✨`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua skin bằng xu của bạn!";
             }, 2000);
             renderSkinShop();
           } else if (playerCoins >= price) {
@@ -282,15 +284,15 @@ function getPurchasedSkinsFromFirebase(skins) {
               coins: playerCoins - price,
               color: color,
             });
-            merchantMessage.textContent = `🎉 Purchased ${color} skin for ${price} coins! 🎉`;
+            merchantMessage.textContent = `🎉 Đã mua skin ${color} với giá ${price} xu! 🎉`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua skin bằng xu của bạn!";
             }, 2000);
             renderSkinShop();
           } else {
-            merchantMessage.textContent = `❌ Not enough coins! Need ${price - playerCoins} more coins. ❌`;
+            merchantMessage.textContent = `❌ Không đủ xu! Cần thêm ${price - playerCoins} xu. ❌`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua skin bằng xu của bạn!";
             }, 2000);
           }
         });
@@ -355,10 +357,10 @@ function getPurchasedSkinsFromFirebase(skins) {
       players[playerId].x = newX;
       players[playerId].y = newY;
       
-      // THÊM: Log tọa độ ra console
+      // Log to console for debugging
       console.log(`🎮 Player moved to: X=${newX}, Y=${newY}`);
       
-      // THÊM: Cập nhật hiển thị tọa độ
+      // Update coordinate display
       updateCoordDisplay();
       
       if (xChange === 1) {
@@ -367,6 +369,12 @@ function getPurchasedSkinsFromFirebase(skins) {
       if (xChange === -1) {
         players[playerId].direction = "left";
       }
+      if (xChange === 0 && yChange === -1) {
+        players[playerId].direction = "right";
+      }
+      if (xChange === 0 && yChange === 1) {
+        players[playerId].direction = "right";
+      }
       playerRef.set(players[playerId]);
       attemptGrabCoin(newX, newY);
       checkMerchantInteraction();
@@ -374,6 +382,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     }
   }
 
+  // QUAN TRỌNG: Hàm tạo Merchant với vị trí CHÍNH XÁC
   function createMerchantElement() {
     const merchantElement = document.createElement("div");
     merchantElement.classList.add("Character", "grid-cell", "merchant");
@@ -386,13 +395,20 @@ function getPurchasedSkinsFromFirebase(skins) {
     `;
     merchantElement.setAttribute("data-color", "purple");
     merchantElement.setAttribute("data-direction", "right");
-    const left = 16 * MERCHANT.x + "px";
-    const top = 16 * MERCHANT.y - 4 + "px";
+    
+    // Tính toán vị trí pixel CHÍNH XÁC
+    const left = (16 * MERCHANT.x) + "px";
+    const top = (16 * MERCHANT.y - 4) + "px";
+    
+    // Gán transform trực tiếp, KHÔNG để animation ghi đè
     merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+    merchantElement.style.position = "absolute";
+    
     gameContainer.appendChild(merchantElement);
-    console.log(`✅ Merchant created at: X=${MERCHANT.x}, Y=${MERCHANT.y}`);
+    console.log(`✅ Merchant created at pixel position: left=${left}, top=${top} (grid: ${MERCHANT.x},${MERCHANT.y})`);
   }
   
+  // QUAN TRỌNG: Hàm tạo NPC Elder với vị trí CHÍNH XÁC
   function createNpcElderElement() {
     const npcElement = document.createElement("div");
     npcElement.classList.add("Character", "grid-cell", "npc-elder");
@@ -405,11 +421,17 @@ function getPurchasedSkinsFromFirebase(skins) {
     `;
     npcElement.setAttribute("data-color", "green");
     npcElement.setAttribute("data-direction", "right");
-    const left = 16 * NPC_ELDER.x + "px";
-    const top = 16 * NPC_ELDER.y - 4 + "px";
+    
+    // Tính toán vị trí pixel CHÍNH XÁC
+    const left = (16 * NPC_ELDER.x) + "px";
+    const top = (16 * NPC_ELDER.y - 4) + "px";
+    
+    // Gán transform trực tiếp, KHÔNG để animation ghi đè
     npcElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+    npcElement.style.position = "absolute";
+    
     gameContainer.appendChild(npcElement);
-    console.log(`✅ NPC Elder created at: X=${NPC_ELDER.x}, Y=${NPC_ELDER.y}`);
+    console.log(`✅ NPC Elder created at pixel position: left=${left}, top=${top} (grid: ${NPC_ELDER.x},${NPC_ELDER.y})`);
   }
 
   // Setup mobile controls
@@ -464,7 +486,8 @@ function getPurchasedSkinsFromFirebase(skins) {
 
   function initGame() {
     console.log("🎮 Initializing game...");
-    console.log(`📌 NPC Elder should be at: X=${NPC_ELDER.x}, Y=${NPC_ELDER.y}`);
+    console.log(`📌 Merchant should be at grid: X=${MERCHANT.x}, Y=${MERCHANT.y}`);
+    console.log(`📌 NPC Elder should be at grid: X=${NPC_ELDER.x}, Y=${NPC_ELDER.y}`);
     
     // Keyboard controls - Arrow keys and WASD
     new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1));
@@ -598,8 +621,12 @@ function getPurchasedSkinsFromFirebase(skins) {
     closeDialogueBtn.addEventListener("click", closeNpcModal);
     nextDialogueBtn.addEventListener("click", nextDialogue);
 
-    createMerchantElement();
-    createNpcElderElement();
+    // Tạo merchant và NPC - ƯU TIÊN gọi sau khi game container sẵn sàng
+    setTimeout(() => {
+      createMerchantElement();
+      createNpcElderElement();
+    }, 100);
+    
     placeCoin();
     setupMobileControls();
   }
