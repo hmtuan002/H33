@@ -8,12 +8,31 @@
   </head>
   <body>
 
+    <!-- GAME CONTAINER -->
     <div class="game-container">
     </div>
     
-    <!-- COORDINATE DISPLAY - THÊM MỚI để xem tọa độ X:Y -->
+    <!-- COORDINATE DISPLAY - Hiển thị tọa độ X:Y -->
     <div class="coord-display" id="coord-display">
       📍 X: -- | Y: --
+    </div>
+    
+    <!-- PLAYER INFO - GÓC TRÊN BÊN TRÁI MÀN HÌNH (ĐÃ SỬA) -->
+    <div class="player-info">
+      <div>
+        <label for="player-name">🏷️ Tên của bạn</label>
+        <input id="player-name" maxlength="10" type="text" />
+      </div>
+      <div>
+        <button id="change-skin">🎨 Đổi Skin</button>
+      </div>
+      <div>
+        <button id="talk-npc-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">🎋 Nói chuyện</button>
+      </div>
+      <div class="coin-display">
+        <label>💰 Xu</label>
+        <div id="player-coins" class="coin-amount">0</div>
+      </div>
     </div>
     
     <!-- Mobile Joystick Controls -->
@@ -32,33 +51,16 @@
         <button class="mobile-btn" id="mobile-right">▶</button>
       </div>
     </div>
-    
-    <div class="player-info">
-      <div>
-        <label for="player-name">Your Name</label>
-        <input id="player-name" maxlength="10" type="text" />
-      </div>
-      <div>
-        <button id="change-skin">🎨 Change Skin</button>
-      </div>
-      <div>
-        <button id="talk-npc-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">🎋 Talk to Elder</button>
-      </div>
-      <div class="coin-display">
-        <label>💰 Coins</label>
-        <div id="player-coins" class="coin-amount">0</div>
-      </div>
-    </div>
 
     <!-- Merchant Modal -->
     <div id="merchant-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>🎨 SKIN SHOP 🎨</h2>
+          <h2>🎨 CỬA HÀNG SKIN 🎨</h2>
           <span id="close-modal" class="close">&times;</span>
         </div>
         <div class="modal-body">
-          <p id="merchant-message" class="merchant-message">Welcome! Buy skins with your coins!</p>
+          <p id="merchant-message" class="merchant-message">Chào mừng! Mua skin bằng xu của bạn!</p>
           <div class="skin-shop-grid" id="skin-shop-list">
             <!-- Skins will be dynamically added here -->
           </div>
@@ -66,7 +68,7 @@
       </div>
     </div>
 
-    <!-- NPC Dialogue Modal -->
+    <!-- NPC Dialogue Modal - ĐÃ BỎ HÌNH ẢNH NHÂN VẬT XẤU -->
     <div id="npc-modal" class="modal">
       <div class="modal-content npc-modal-content">
         <div class="modal-header npc-modal-header">
@@ -74,9 +76,7 @@
           <span id="close-npc-modal" class="close">&times;</span>
         </div>
         <div class="modal-body">
-          <div class="npc-avatar">
-            <div class="npc-avatar-sprite"></div>
-          </div>
+          <!-- ĐÃ XÓA HOÀN TOÀN .npc-avatar -->
           <div class="dialogue-box" id="dialogue-box">
             <p id="dialogue-text" class="dialogue-text"></p>
             <div class="dialogue-controls">
