@@ -36,23 +36,23 @@ const MERCHANT = {
   name: "SKIN MERCHANT",
 };
 
-// NPC Elder position - Nói về nón lá Việt Nam
+// NPC Elder position - Đã đưa vào trong map (trong tọa độ hợp lệ)
 const NPC_ELDER = {
-  x: 3,
-  y: 10,
+  x: 4,
+  y: 8,
   name: "LÃO NHÂN",
 };
 
 // Dialogue content for NPC Elder
 const DIALOGUE_CONTENT = [
-  "Chào con! Ta là người giữ gìn truyền thống làng này...",
-  "Con có biết về chiếc nón lá Việt Nam không?",
-  "Nón lá đã có từ hàng nghìn năm trước, là biểu tượng của người phụ nữ Việt Nam.",
-  "Nón được làm từ lá cọ hoặc lá dừa, khung tre, rất bền và nhẹ.",
-  "Ngày xưa, nón lá che nắng che mưa cho người nông dân trên đồng ruộng.",
-  "Ngày nay, nón lá còn là quà tặng ý nghĩa cho bạn bè quốc tế.",
-  "Hãy giữ gìn và trân trọng văn hóa dân tộc con nhé!",
-  "Chúc con may mắn trên hành trình của mình! 🌾"
+  "🌾 Chào con, ta là Lão Nhân nơi đầu làng...",
+  "🌾 Con có biết về chiếc nón lá Việt Nam không?",
+  "🌾 Nón lá đã có từ hàng nghìn năm trước, là biểu tượng của người phụ nữ Việt Nam.",
+  "🌾 Nón được làm từ lá cọ hoặc lá dừa, khung tre, rất bền và nhẹ.",
+  "🌾 Ngày xưa, nón lá che nắng che mưa cho người nông dân trên đồng ruộng.",
+  "🌾 Ngày nay, nón lá còn là quà tặng ý nghĩa cho bạn bè quốc tế.",
+  "🌾 Hãy giữ gìn và trân trọng văn hóa dân tộc con nhé!",
+  "🎋 Chúc con may mắn trên hành trình của mình! 🎋"
 ];
 
 //Misc Helpers
@@ -66,12 +66,12 @@ function getKeyString(x, y) {
 
 function createName() {
   const prefix = randomFromArray([
-    "COOL", "SUPER", "HIP", "SMUG", "COOL", "SILKY", "GOOD", "SAFE", "DEAR", 
-    "DAMP", "WARM", "RICH", "LONG", "DARK", "SOFT", "BUFF", "DOPE",
+    "COOL", "SUPER", "HIP", "SMUG", "GOOD", "SAFE", "DEAR", "DARK",
+    "WARM", "RICH", "LONG", "SOFT", "BUFF", "DOPE", "PRO", "VIP"
   ]);
   const animal = randomFromArray([
-    "BEAR", "DOG", "CAT", "FOX", "LAMB", "LION", "BOAR", "GOAT", "VOLE", 
-    "SEAL", "PUMA", "MULE", "BULL", "BIRD", "BUG",
+    "BEAR", "DOG", "CAT", "FOX", "LAMB", "LION", "BOAR", "GOAT",
+    "SEAL", "PUMA", "MULE", "BULL", "BIRD", "WOLF", "HAWK"
   ]);
   return `${prefix} ${animal}`;
 }
@@ -84,9 +84,9 @@ function isSolid(x, y) {
   const blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
   return (
     blockedNextSpace ||
-    x >= mapData.maxX ||
+    x > mapData.maxX ||
     x < mapData.minX ||
-    y >= mapData.maxY ||
+    y > mapData.maxY ||
     y < mapData.minY
   );
 }
@@ -98,7 +98,7 @@ function getRandomSafeSpot() {
     { x: 5, y: 8 }, { x: 5, y: 10 }, { x: 5, y: 11 }, { x: 11, y: 7 },
     { x: 12, y: 7 }, { x: 13, y: 7 }, { x: 13, y: 6 }, { x: 13, y: 8 },
     { x: 7, y: 6 }, { x: 7, y: 7 }, { x: 7, y: 8 }, { x: 8, y: 8 },
-    { x: 10, y: 8 }, { x: 8, y: 8 }, { x: 11, y: 4 },
+    { x: 10, y: 8 }, { x: 11, y: 4 },
   ]);
 }
 
@@ -131,7 +131,6 @@ function getPurchasedSkinsFromFirebase(skins) {
   
   // Dialogue state
   let currentDialogueIndex = 0;
-  let isInDialogue = false;
 
   function updatePlayerCoinsDisplay(coins) {
     if (playerCoinsDisplay) {
@@ -157,7 +156,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     if (coins[key]) {
       firebase.database().ref(`coins/${key}`).remove();
       playerRef.update({
-        coins: players[playerId].coins + 1,
+        coins: (players[playerId]?.coins || 0) + 1,
       });
     }
   }
@@ -175,14 +174,12 @@ function getPurchasedSkinsFromFirebase(skins) {
   // NPC Dialogue functions
   function openNpcModal() {
     currentDialogueIndex = 0;
-    isInDialogue = true;
     updateDialogueText();
     npcModal.style.display = "flex";
   }
   
   function closeNpcModal() {
     npcModal.style.display = "none";
-    isInDialogue = false;
     currentDialogueIndex = 0;
   }
   
@@ -190,7 +187,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     if (currentDialogueIndex < DIALOGUE_CONTENT.length) {
       dialogueText.textContent = DIALOGUE_CONTENT[currentDialogueIndex];
       if (currentDialogueIndex === DIALOGUE_CONTENT.length - 1) {
-        nextDialogueBtn.textContent = "🏮 Hoàn thành 🏮";
+        nextDialogueBtn.textContent = "🏮 Kết thúc 🏮";
       } else {
         nextDialogueBtn.textContent = "➡ Tiếp theo";
       }
@@ -231,13 +228,13 @@ function getPurchasedSkinsFromFirebase(skins) {
       let buttonDisabled = false;
       
       if (isCurrent) {
-        buttonText = "✓ EQUIPPED";
+        buttonText = "✓ ĐANG DÙNG";
         buttonDisabled = true;
       } else if (isOwned) {
-        buttonText = "EQUIP";
+        buttonText = "TRANG BỊ";
         buttonDisabled = false;
       } else {
-        buttonText = `BUY ${price} COINS`;
+        buttonText = `MUA ${price} XU`;
         buttonDisabled = false;
       }
       
@@ -259,9 +256,9 @@ function getPurchasedSkinsFromFirebase(skins) {
             playerRef.update({
               color: color,
             });
-            merchantMessage.textContent = `✨ Equipped ${color} skin! ✨`;
+            merchantMessage.textContent = `✨ Đã trang bị da ${color}! ✨`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua da bằng xu của bạn!";
             }, 2000);
             renderSkinShop();
           } else if (playerCoins >= price) {
@@ -271,15 +268,15 @@ function getPurchasedSkinsFromFirebase(skins) {
               coins: playerCoins - price,
               color: color,
             });
-            merchantMessage.textContent = `🎉 Purchased ${color} skin for ${price} coins! 🎉`;
+            merchantMessage.textContent = `🎉 Đã mua da ${color} với ${price} xu! 🎉`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua da bằng xu của bạn!";
             }, 2000);
             renderSkinShop();
           } else {
-            merchantMessage.textContent = `❌ Not enough coins! Need ${price - playerCoins} more coins. ❌`;
+            merchantMessage.textContent = `❌ Không đủ xu! Cần thêm ${price - playerCoins} xu nữa! ❌`;
             setTimeout(() => {
-              merchantMessage.textContent = "Welcome! Buy skins with your coins!";
+              merchantMessage.textContent = "Chào mừng! Mua da bằng xu của bạn!";
             }, 2000);
           }
         });
@@ -306,10 +303,16 @@ function getPurchasedSkinsFromFirebase(skins) {
   // Movement handling - supports both keyboard and joystick
   let currentMovement = { x: 0, y: 0 };
   let movementInterval = null;
+  let lastMoveTime = 0;
+  const MOVE_DELAY = 120;
   
   function processMovement() {
-    if (currentMovement.x !== 0 || currentMovement.y !== 0) {
-      handleArrowPress(currentMovement.x, currentMovement.y);
+    const now = Date.now();
+    if (now - lastMoveTime >= MOVE_DELAY) {
+      if (currentMovement.x !== 0 || currentMovement.y !== 0) {
+        handleArrowPress(currentMovement.x, currentMovement.y);
+        lastMoveTime = now;
+      }
     }
   }
   
@@ -317,7 +320,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     if (movementInterval) return;
     movementInterval = setInterval(() => {
       processMovement();
-    }, 100);
+    }, 50);
   }
   
   function stopMovementLoop() {
@@ -398,7 +401,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     const joystickBase = document.getElementById("joystick-base");
     const joystickThumb = document.getElementById("joystick-thumb");
     
-    if (joystickBase && joystickThumb) {
+    if (joystickBase && joystickThumb && typeof Joystick !== 'undefined') {
       new Joystick(joystickBase, joystickThumb, (x, y) => {
         let moveX = 0, moveY = 0;
         if (Math.abs(x) > Math.abs(y)) {
@@ -463,8 +466,10 @@ function getPurchasedSkinsFromFirebase(skins) {
         const characterState = players[key];
         let el = playerElements[key];
         if (el) {
-          el.querySelector(".Character_name").innerText = characterState.name;
-          el.querySelector(".Character_coins").innerText = characterState.coins;
+          const nameSpan = el.querySelector(".Character_name");
+          const coinsSpan = el.querySelector(".Character_coins");
+          if (nameSpan) nameSpan.innerText = characterState.name;
+          if (coinsSpan) coinsSpan.innerText = characterState.coins;
           el.setAttribute("data-color", characterState.color);
           el.setAttribute("data-direction", characterState.direction);
           const left = 16 * characterState.x + "px";
@@ -486,13 +491,15 @@ function getPurchasedSkinsFromFirebase(skins) {
         <div class="Character_sprite grid-cell"></div>
         <div class="Character_name-container">
           <span class="Character_name"></span>
-          <span class="Character_coins">0</span>
+          <span class="Character_coins"></span>
         </div>
         <div class="Character_you-arrow"></div>
       `;
       playerElements[addedPlayer.id] = characterElement;
-      characterElement.querySelector(".Character_name").innerText = addedPlayer.name;
-      characterElement.querySelector(".Character_coins").innerText = addedPlayer.coins;
+      const nameSpan = characterElement.querySelector(".Character_name");
+      const coinsSpan = characterElement.querySelector(".Character_coins");
+      if (nameSpan) nameSpan.innerText = addedPlayer.name;
+      if (coinsSpan) coinsSpan.innerText = addedPlayer.coins;
       characterElement.setAttribute("data-color", addedPlayer.color);
       characterElement.setAttribute("data-direction", addedPlayer.direction);
       const left = 16 * addedPlayer.x + "px";
@@ -569,9 +576,9 @@ function getPurchasedSkinsFromFirebase(skins) {
       }
     });
     
-    closeNpcModalBtn.addEventListener("click", closeNpcModal);
-    closeDialogueBtn.addEventListener("click", closeNpcModal);
-    nextDialogueBtn.addEventListener("click", nextDialogue);
+    if (closeNpcModalBtn) closeNpcModalBtn.addEventListener("click", closeNpcModal);
+    if (closeDialogueBtn) closeDialogueBtn.addEventListener("click", closeNpcModal);
+    if (nextDialogueBtn) nextDialogueBtn.addEventListener("click", nextDialogue);
 
     createMerchantElement();
     createNpcElderElement();
