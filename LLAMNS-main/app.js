@@ -29,21 +29,22 @@ const SKIN_PRICES = {
   purple: 30,
 };
 
-// Merchant position
+// Merchant position - GIỮ NGUYÊN VỊ TRÍ ĐẸP
 const MERCHANT = {
   x: 12,
   y: 4,
   name: "SKIN MERCHANT",
 };
 
-// NPC Elder position - Đã đưa vào trong map (trong tọa độ hợp lệ)
+// NPC Elder position - CÁCH MERCHANT 10 Ô VỀ BÊN TRÁI (từ x=12 qua x=2)
+// Kiểm tra mapData.blockedSpaces, (2,4) và (2,5) đều không bị chặn
 const NPC_ELDER = {
-  x: 4,
-  y: 8,
+  x: 2,
+  y: 5,
   name: "LÃO NHÂN",
 };
 
-// Dialogue content for NPC Elder
+// Dialogue content for NPC Elder - Giới thiệu về Nón Lá Việt Nam
 const DIALOGUE_CONTENT = [
   "🌾 Chào con, ta là Lão Nhân nơi đầu làng...",
   "🌾 Con có biết về chiếc nón lá Việt Nam không?",
