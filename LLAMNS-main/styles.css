@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -11,6 +13,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 .game-container { 
@@ -20,84 +25,96 @@ html, body {
   background: url(images/map.png) no-repeat no-repeat;
   transform: scale(3);
   image-rendering: pixelated;
+  transform-origin: center;
 }
 
-.player-info {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 1em;
-  display: flex;
-  gap: 1em;
-  align-items: flex-end;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 0 0 8px 0;
-  backdrop-filter: blur(5px);
+/* Mobile Controls */
+.joystick-container {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  z-index: 100;
+  display: none;
 }
 
-.player-info > div {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ffd700;
-}
-
-label {
-  display: block;
-  font-weight: bold;
-  color: #ffd700;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-input[type="text"] {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 14px;
-  height: 32px;
-  border-radius: 4px;
-  outline: 0;
-  padding-left: 0.5em;
-  border: 2px solid #222034;
+.joystick-base {
   width: 120px;
-  text-transform: uppercase;
-  background: #fff;
-}
-input[type="text"]:focus {
-  border-color: #f000ff;
+  height: 120px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  backdrop-filter: blur(5px);
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-button {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 14px;
-  height: 32px;
-  padding: 0 12px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-  border: none;
-  border-radius: 6px;
+.joystick-thumb {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 215, 0, 0.8);
+  border-radius: 50%;
   cursor: pointer;
-  transition: 0.2s;
-  color: #333;
-}
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
-}
-button:active {
-  transform: scale(0.98);
+  transition: transform 0.05s linear;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-.coin-display {
-  text-align: center;
-  min-width: 80px;
+.mobile-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
 }
 
-.coin-amount {
-  font-size: 20px;
-  font-weight: bold;
+.mobile-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mobile-btn {
+  width: 55px;
+  height: 55px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  border: 2px solid #ffd700;
+  border-radius: 50%;
+  font-size: 24px;
   color: #ffd700;
-  text-shadow: 1px 1px 0 #333;
+  cursor: pointer;
+  transition: 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 215, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .joystick-container {
+    display: block;
+  }
+  .mobile-controls {
+    display: flex;
+  }
+  .game-container {
+    transform: scale(2.2);
+  }
+  .player-info {
+    font-size: 10px;
+    padding: 0.5em;
+    gap: 0.5em;
+  }
+  button {
+    font-size: 10px;
+    padding: 0 6px;
+  }
 }
 
 /* Characters */
@@ -107,10 +124,10 @@ button:active {
   height: 16px;
 }
 .Character {
-  transition: transform 0.4s;
+  transition: transform 0.15s ease-out;
 }
 .Character.you {
-  z-index: 1;
+  z-index: 2;
 }
 .Character.you .Character_you-arrow {
   display: block;
@@ -183,6 +200,23 @@ button:active {
   font-size: 4px;
   top: -14px;
 }
+
+/* NPC Elder */
+.npc-elder {
+  z-index: 2;
+  cursor: pointer;
+  animation: npcBob 0.8s ease-in-out infinite alternate;
+}
+.npc-elder .Character_name-container {
+  background: #2E7D32;
+  font-size: 4px;
+  top: -14px;
+}
+@keyframes npcBob {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-4px); }
+}
+
 @keyframes merchantBob {
   from { transform: translateY(0px) translate3d(192px, 60px, 0); }
   to { transform: translateY(-3px) translate3d(192px, 60px, 0); }
@@ -224,6 +258,79 @@ button:active {
   border: 3px solid #ffd700;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: modalSlideIn 0.3s ease-out;
+}
+
+/* NPC Modal Styles */
+.npc-modal-content {
+  max-width: 450px;
+  background: linear-gradient(135deg, #1a3a1a 0%, #0a2a0a 100%);
+  border-color: #4CAF50;
+}
+
+.npc-modal-header {
+  background: linear-gradient(135deg, #2e5a2e 0%, #1a3a1a 100%);
+  border-bottom-color: #4CAF50;
+}
+
+.npc-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.npc-avatar-sprite {
+  width: 64px;
+  height: 64px;
+  background: url(images/characters.png);
+  background-position-y: -80px;
+  background-position-x: 0;
+  image-rendering: pixelated;
+  transform: scale(2);
+}
+
+.dialogue-box {
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid #4CAF50;
+  min-height: 200px;
+}
+
+.dialogue-text {
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  min-height: 100px;
+}
+
+.dialogue-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.dialogue-next-btn, .dialogue-close-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dialogue-next-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  color: white;
+}
+
+.dialogue-close-btn {
+  background: linear-gradient(135deg, #666 0%, #444 100%);
+  color: white;
+}
+
+.dialogue-next-btn:hover, .dialogue-close-btn:hover {
+  transform: scale(1.05);
 }
 
 @keyframes modalSlideIn {
@@ -356,42 +463,61 @@ button:active {
   transform: none;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .skin-shop-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .modal-header h2 {
-    font-size: 1rem;
-  }
-  
-  .skin-preview {
-    transform: scale(1.5);
-  }
-  
-  .player-info {
-    padding: 0.5em;
-    gap: 0.5em;
-  }
-  
-  .player-info > div {
-    padding: 4px 8px;
-  }
-  
-  button {
-    font-size: 11px;
-    height: 28px;
-    padding: 0 8px;
-  }
-  
-  input[type="text"] {
-    font-size: 11px;
-    height: 28px;
-    width: 90px;
-  }
-  
-  .coin-amount {
-    font-size: 16px;
-  }
+.player-info > div {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ffd700;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+input[type="text"] {
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 14px;
+  height: 32px;
+  border-radius: 4px;
+  outline: 0;
+  padding-left: 0.5em;
+  border: 2px solid #222034;
+  width: 120px;
+  text-transform: uppercase;
+  background: #fff;
+}
+
+button {
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 14px;
+  height: 32px;
+  padding: 0 12px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #333;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.coin-display {
+  text-align: center;
+  min-width: 80px;
+}
+
+.coin-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 1px 1px 0 #333;
 }
