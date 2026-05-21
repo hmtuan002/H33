@@ -1,7 +1,7 @@
 <html>
   <head>
-    <title>Multiplayer Demo - Skin Shop</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Demo - Nón Lá Việt Nam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" type="text/css">
@@ -10,6 +10,24 @@
 
     <div class="game-container">
     </div>
+    
+    <!-- Mobile Joystick Controls -->
+    <div class="joystick-container" id="joystick-container">
+      <div class="joystick-base" id="joystick-base">
+        <div class="joystick-thumb" id="joystick-thumb"></div>
+      </div>
+    </div>
+    
+    <!-- Touch buttons for mobile -->
+    <div class="mobile-controls">
+      <button class="mobile-btn" id="mobile-up">▲</button>
+      <div class="mobile-row">
+        <button class="mobile-btn" id="mobile-left">◀</button>
+        <button class="mobile-btn" id="mobile-down">▼</button>
+        <button class="mobile-btn" id="mobile-right">▶</button>
+      </div>
+    </div>
+    
     <div class="player-info">
       <div>
         <label for="player-name">Your Name</label>
@@ -17,6 +35,9 @@
       </div>
       <div>
         <button id="change-skin">🎨 Change Skin</button>
+      </div>
+      <div>
+        <button id="talk-npc-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">🎋 Talk to Elder</button>
       </div>
       <div class="coin-display">
         <label>💰 Coins</label>
@@ -40,6 +61,28 @@
       </div>
     </div>
 
+    <!-- NPC Dialogue Modal -->
+    <div id="npc-modal" class="modal">
+      <div class="modal-content npc-modal-content">
+        <div class="modal-header npc-modal-header">
+          <h2>🎋 NÓN LÁ VIỆT NAM 🎋</h2>
+          <span id="close-npc-modal" class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="npc-avatar">
+            <div class="npc-avatar-sprite"></div>
+          </div>
+          <div class="dialogue-box" id="dialogue-box">
+            <p id="dialogue-text" class="dialogue-text"></p>
+            <div class="dialogue-controls">
+              <button id="next-dialogue-btn" class="dialogue-next-btn">➡ Tiếp theo</button>
+              <button id="close-dialogue-btn" class="dialogue-close-btn">✖ Đóng</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -58,6 +101,7 @@
     </script>
 
     <script src="KeyPressListener.js"></script>
+    <script src="Joystick.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
