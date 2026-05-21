@@ -125,6 +125,7 @@ html, body {
 }
 .Character {
   transition: transform 0.15s ease-out;
+  position: absolute;
 }
 .Character.you {
   z-index: 2;
@@ -189,8 +190,9 @@ html, body {
   color: gold;
 }
 
-/* Merchant */
+/* Merchant - FIXED POSITION */
 .merchant {
+  position: absolute;
   z-index: 2;
   cursor: pointer;
   animation: merchantBob 0.6s ease-in-out infinite alternate;
@@ -201,25 +203,36 @@ html, body {
   top: -14px;
 }
 
-/* NPC Elder */
+/* NPC Elder - FIXED POSITION - SỬA LỖI QUAN TRỌNG */
 .npc-elder {
+  position: absolute;
   z-index: 2;
   cursor: pointer;
-  animation: npcBob 0.8s ease-in-out infinite alternate;
+  animation: elderBob 0.8s ease-in-out infinite alternate;
 }
 .npc-elder .Character_name-container {
   background: #2E7D32;
   font-size: 4px;
   top: -14px;
 }
-@keyframes npcBob {
-  from { transform: translateY(0px); }
-  to { transform: translateY(-4px); }
+
+/* SỬA LẠI ANIMATION - KHÔNG DÙNG translate3d CỐ ĐỊNH */
+@keyframes elderBob {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-4px);
+  }
 }
 
 @keyframes merchantBob {
-  from { transform: translateY(0px) translate3d(192px, 60px, 0); }
-  to { transform: translateY(-3px) translate3d(192px, 60px, 0); }
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-3px);
+  }
 }
 
 /* Coins */
@@ -233,6 +246,24 @@ html, body {
 }
 .Coin_shadow {
   background: url(images/coin-shadow.png) no-repeat no-repeat;
+}
+
+/* Coordinate Display - THÊM MỚI */
+.coord-display {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #00ff88;
+  font-family: monospace;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  z-index: 999;
+  border: 1px solid #00ff88;
+  font-weight: bold;
+  letter-spacing: 1px;
+  backdrop-filter: blur(4px);
 }
 
 /* Modal Styles */
