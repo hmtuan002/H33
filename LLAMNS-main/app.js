@@ -38,8 +38,8 @@ const MERCHANT = {
 
 // NPC Elder position - Nói về nón lá Việt Nam
 const NPC_ELDER = {
-  x: 3,
-  y: 10,
+  x: 2,
+  y: 11,
   name: "LÃO NHÂN",
 };
 
