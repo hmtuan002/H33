@@ -8,9 +8,7 @@
   </head>
   <body>
 
-    <div class="game-wrapper">
-      <div class="game-container">
-      </div>
+    <div class="game-container">
     </div>
     
     <!-- Mobile Joystick Controls -->
@@ -31,18 +29,18 @@
     </div>
     
     <div class="player-info">
-      <div class="info-section">
-        <label for="player-name">🏷️ Tên của bạn</label>
+      <div>
+        <label for="player-name">Your Name</label>
         <input id="player-name" maxlength="10" type="text" />
       </div>
-      <div class="info-section">
-        <button id="change-skin">🎨 Đổi Skin</button>
+      <div>
+        <button id="change-skin">🎨 Change Skin</button>
       </div>
-      <div class="info-section">
-        <button id="talk-npc-btn" class="npc-talk-btn">🎋 Nói chuyện</button>
+      <div>
+        <button id="talk-npc-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">🎋 Talk to Elder</button>
       </div>
-      <div class="info-section coin-display">
-        <label>💰 Xu</label>
+      <div class="coin-display">
+        <label>💰 Coins</label>
         <div id="player-coins" class="coin-amount">0</div>
       </div>
     </div>
@@ -51,11 +49,11 @@
     <div id="merchant-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>🎨 CỬA HÀNG DA 🎨</h2>
+          <h2>🎨 SKIN SHOP 🎨</h2>
           <span id="close-modal" class="close">&times;</span>
         </div>
         <div class="modal-body">
-          <p id="merchant-message" class="merchant-message">Chào mừng! Mua da bằng xu của bạn!</p>
+          <p id="merchant-message" class="merchant-message">Welcome! Buy skins with your coins!</p>
           <div class="skin-shop-grid" id="skin-shop-list">
             <!-- Skins will be dynamically added here -->
           </div>
