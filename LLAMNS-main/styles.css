@@ -106,15 +106,6 @@ html, body {
   .game-container {
     transform: scale(2.2);
   }
-  .player-info {
-    font-size: 10px;
-    padding: 0.5em;
-    gap: 0.5em;
-  }
-  button {
-    font-size: 10px;
-    padding: 0 6px;
-  }
 }
 
 /* Characters */
@@ -125,8 +116,8 @@ html, body {
 }
 
 .Character {
-  transition: transform 0.15s ease-out;
   position: absolute;
+  transition: transform 0.15s ease-out;
 }
 
 .Character.you {
@@ -211,13 +202,11 @@ html, body {
   color: gold;
 }
 
-/* Merchant - QUAN TRỌNG: KHÔNG để animation làm sai vị trí */
+/* Merchant - KHÔNG animation để tránh lỗi vị trí */
 .merchant {
   position: absolute;
   z-index: 2;
   cursor: pointer;
-  animation: merchantBob 0.6s ease-in-out infinite alternate;
-  transform-origin: center center;
 }
 
 .merchant .Character_name-container {
@@ -226,38 +215,17 @@ html, body {
   top: -14px;
 }
 
-/* NPC Elder - QUAN TRỌNG: SỬA HOÀN TOÀN để không bị lệch vị trí */
+/* NPC Elder - KHÔNG animation để tránh lỗi vị trí */
 .npc-elder {
   position: absolute;
   z-index: 2;
   cursor: pointer;
-  animation: elderBob 0.8s ease-in-out infinite alternate;
-  transform-origin: center center;
 }
 
 .npc-elder .Character_name-container {
   background: #2E7D32;
   font-size: 4px;
   top: -14px;
-}
-
-/* Animation chỉ nhún lên xuống, KHÔNG làm thay đổi vị trí X */
-@keyframes elderBob {
-  0% {
-    transform: translateY(0px);
-  }
-  100% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes merchantBob {
-  0% {
-    transform: translateY(0px);
-  }
-  100% {
-    transform: translateY(-2px);
-  }
 }
 
 /* Coins */
@@ -303,6 +271,63 @@ html, body {
   backdrop-filter: blur(4px);
 }
 
+/* Player Info - GÓC TRÊN BÊN TRÁI - ĐÃ BỎ 2 NÚT */
+.player-info {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 15px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  border: 1px solid #ffd700;
+  z-index: 200;
+  flex-wrap: wrap;
+}
+
+.player-info > div {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #ffd700;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+input[type="text"] {
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 12px;
+  height: 28px;
+  border-radius: 4px;
+  outline: 0;
+  padding-left: 0.5em;
+  border: 2px solid #222034;
+  width: 100px;
+  text-transform: uppercase;
+  background: #fff;
+}
+
+.coin-display {
+  text-align: center;
+  min-width: 70px;
+}
+
+.coin-amount {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 1px 1px 0 #333;
+}
+
 /* Modal Styles */
 .modal {
   display: none;
@@ -328,7 +353,7 @@ html, body {
   animation: modalSlideIn 0.3s ease-out;
 }
 
-/* NPC Modal Styles - BỎ HÌNH ẢNH NHÂN VẬT XẤU */
+/* NPC Modal Styles */
 .npc-modal-content {
   max-width: 500px;
   background: linear-gradient(135deg, #1a3a1a 0%, #0a2a0a 100%);
@@ -339,8 +364,6 @@ html, body {
   background: linear-gradient(135deg, #2e5a2e 0%, #1a3a1a 100%);
   border-bottom-color: #4CAF50;
 }
-
-/* ĐÃ XÓA .npc-avatar HOÀN TOÀN - không còn hình ảnh xấu nữa */
 
 .dialogue-box {
   background: rgba(0, 0, 0, 0.85);
@@ -363,10 +386,11 @@ html, body {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  margin-top: 10px;
 }
 
 .dialogue-next-btn, .dialogue-close-btn {
-  padding: 10px 24px;
+  padding: 8px 20px;
   border: none;
   border-radius: 8px;
   font-weight: bold;
@@ -517,80 +541,4 @@ html, body {
   cursor: not-allowed;
   color: #999;
   transform: none;
-}
-
-/* Player Info - GÓC TRÊN BÊN TRÁI MÀN HÌNH */
-.player-info {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 10px 15px;
-  border-radius: 12px;
-  backdrop-filter: blur(5px);
-  border: 1px solid #ffd700;
-  z-index: 200;
-  flex-wrap: wrap;
-}
-
-.player-info > div {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid #ffd700;
-}
-
-label {
-  display: block;
-  font-weight: bold;
-  color: #ffd700;
-  font-size: 10px;
-  margin-bottom: 2px;
-}
-
-input[type="text"] {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 12px;
-  height: 28px;
-  border-radius: 4px;
-  outline: 0;
-  padding-left: 0.5em;
-  border: 2px solid #222034;
-  width: 100px;
-  text-transform: uppercase;
-  background: #fff;
-}
-
-button {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 11px;
-  height: 28px;
-  padding: 0 10px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s;
-  color: #333;
-  white-space: nowrap;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-.coin-display {
-  text-align: center;
-  min-width: 70px;
-}
-
-.coin-amount {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 1px 1px 0 #333;
 }
