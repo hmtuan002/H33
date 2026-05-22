@@ -38,7 +38,7 @@ const MERCHANT = {
 
 // NPC Elder position
 const NPC_ELDER = {
-  x: 3,
+  x: 2,
   y: 10,
   name: "LÃO NHÂN",
 };
