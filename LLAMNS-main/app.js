@@ -454,15 +454,16 @@ function getPurchasedSkinsFromFirebase(skins) {
     npcCreated = true;
   }
 
-  // Setup mobile controls
+  // Setup mobile controls - CHỈ JOYSTICK, KHÔNG CÓ NÚT LÊN XUỐNG TRÁI PHẢI
   function setupMobileControls() {
-    // Joystick
+    // Joystick duy nhất - không có nút bấm
     const joystickBase = document.getElementById("joystick-base");
     const joystickThumb = document.getElementById("joystick-thumb");
     
     if (joystickBase && joystickThumb) {
       new Joystick(joystickBase, joystickThumb, (x, y) => {
         let moveX = 0, moveY = 0;
+        // Xác định hướng di chuyển dựa trên joystick
         if (Math.abs(x) > Math.abs(y)) {
           moveX = x > 0 ? 1 : (x < 0 ? -1 : 0);
         } else {
@@ -471,37 +472,6 @@ function getPurchasedSkinsFromFirebase(skins) {
         setMovement(moveX, moveY);
       });
     }
-    
-    // Touch buttons
-    const upBtn = document.getElementById("mobile-up");
-    const downBtn = document.getElementById("mobile-down");
-    const leftBtn = document.getElementById("mobile-left");
-    const rightBtn = document.getElementById("mobile-right");
-    
-    const addTouchButton = (btn, xMove, yMove) => {
-      if (!btn) return;
-      btn.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        setMovement(xMove, yMove);
-      });
-      btn.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        setMovement(0, 0);
-      });
-      btn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        setMovement(xMove, yMove);
-      });
-      btn.addEventListener("mouseup", (e) => {
-        e.preventDefault();
-        setMovement(0, 0);
-      });
-    };
-    
-    addTouchButton(upBtn, 0, -1);
-    addTouchButton(downBtn, 0, 1);
-    addTouchButton(leftBtn, -1, 0);
-    addTouchButton(rightBtn, 1, 0);
   }
 
   function initGame() {
