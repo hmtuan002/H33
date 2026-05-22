@@ -30,7 +30,7 @@ html, body {
 /* Mobile: thu nhỏ map vừa màn hình */
 @media (max-width: 768px) {
   .game-container {
-    transform: scale(1.8);
+    transform: scale(2.5);
   }
 }
 
