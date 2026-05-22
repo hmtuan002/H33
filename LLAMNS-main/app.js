@@ -43,7 +43,7 @@ const NPC_ELDER = {
   name: "LÃO NHÂN",
 };
 
-// Dialogue content for NPC Elder - Nội dung dài hơn, chữ to hơn
+// Dialogue content for NPC Elder
 const DIALOGUE_CONTENT = [
   "Chào con! Ta là người giữ gìn truyền thống làng nghề nón lá Việt Nam.",
   "Con có biết chiếc nón lá Việt Nam đã có từ hàng nghìn năm trước không?",
@@ -118,8 +118,6 @@ function getPurchasedSkinsFromFirebase(skins) {
 
   const gameContainer = document.querySelector(".game-container");
   const playerNameInput = document.querySelector("#player-name");
-  const changeSkinButton = document.querySelector("#change-skin");
-  const talkNpcBtn = document.querySelector("#talk-npc-btn");
   const merchantModal = document.querySelector("#merchant-modal");
   const closeModalBtn = document.querySelector("#close-modal");
   const npcModal = document.querySelector("#npc-modal");
@@ -137,6 +135,10 @@ function getPurchasedSkinsFromFirebase(skins) {
   // Dialogue state
   let currentDialogueIndex = 0;
   let isInDialogue = false;
+
+  // Flag to prevent duplicate NPC/Merchant creation
+  let merchantCreated = false;
+  let npcCreated = false;
 
   function updatePlayerCoinsDisplay(coins) {
     if (playerCoinsDisplay) {
@@ -382,8 +384,14 @@ function getPurchasedSkinsFromFirebase(skins) {
     }
   }
 
-  // QUAN TRỌNG: Hàm tạo Merchant với vị trí CHÍNH XÁC
+  // QUAN TRỌNG: Hàm tạo Merchant - XÓA element cũ trước khi tạo mới
   function createMerchantElement() {
+    // Xóa element cũ nếu tồn tại
+    const oldMerchant = document.querySelector(".merchant");
+    if (oldMerchant) {
+      oldMerchant.remove();
+    }
+    
     const merchantElement = document.createElement("div");
     merchantElement.classList.add("Character", "grid-cell", "merchant");
     merchantElement.innerHTML = `
@@ -400,16 +408,25 @@ function getPurchasedSkinsFromFirebase(skins) {
     const left = (16 * MERCHANT.x) + "px";
     const top = (16 * MERCHANT.y - 4) + "px";
     
-    // Gán transform trực tiếp, KHÔNG để animation ghi đè
+    // Gán transform trực tiếp
     merchantElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     merchantElement.style.position = "absolute";
+    merchantElement.style.left = "0";
+    merchantElement.style.top = "0";
     
     gameContainer.appendChild(merchantElement);
-    console.log(`✅ Merchant created at pixel position: left=${left}, top=${top} (grid: ${MERCHANT.x},${MERCHANT.y})`);
+    console.log(`✅ Merchant created at pixel: left=${left}, top=${top} (grid: ${MERCHANT.x},${MERCHANT.y})`);
+    merchantCreated = true;
   }
   
-  // QUAN TRỌNG: Hàm tạo NPC Elder với vị trí CHÍNH XÁC
+  // QUAN TRỌNG: Hàm tạo NPC Elder - XÓA element cũ trước khi tạo mới
   function createNpcElderElement() {
+    // Xóa element cũ nếu tồn tại
+    const oldNpc = document.querySelector(".npc-elder");
+    if (oldNpc) {
+      oldNpc.remove();
+    }
+    
     const npcElement = document.createElement("div");
     npcElement.classList.add("Character", "grid-cell", "npc-elder");
     npcElement.innerHTML = `
@@ -426,12 +443,15 @@ function getPurchasedSkinsFromFirebase(skins) {
     const left = (16 * NPC_ELDER.x) + "px";
     const top = (16 * NPC_ELDER.y - 4) + "px";
     
-    // Gán transform trực tiếp, KHÔNG để animation ghi đè
+    // Gán transform trực tiếp
     npcElement.style.transform = `translate3d(${left}, ${top}, 0)`;
     npcElement.style.position = "absolute";
+    npcElement.style.left = "0";
+    npcElement.style.top = "0";
     
     gameContainer.appendChild(npcElement);
-    console.log(`✅ NPC Elder created at pixel position: left=${left}, top=${top} (grid: ${NPC_ELDER.x},${NPC_ELDER.y})`);
+    console.log(`✅ NPC Elder created at pixel: left=${left}, top=${top} (grid: ${NPC_ELDER.x},${NPC_ELDER.y})`);
+    npcCreated = true;
   }
 
   // Setup mobile controls
@@ -595,18 +615,6 @@ function getPurchasedSkinsFromFirebase(skins) {
       });
     });
 
-    if (changeSkinButton) {
-      changeSkinButton.addEventListener("click", () => {
-        openMerchantModal();
-      });
-    }
-    
-    if (talkNpcBtn) {
-      talkNpcBtn.addEventListener("click", () => {
-        openNpcModal();
-      });
-    }
-
     closeModalBtn.addEventListener("click", closeMerchantModal);
     window.addEventListener("click", (e) => {
       if (e.target === merchantModal) {
@@ -621,10 +629,10 @@ function getPurchasedSkinsFromFirebase(skins) {
     closeDialogueBtn.addEventListener("click", closeNpcModal);
     nextDialogueBtn.addEventListener("click", nextDialogue);
 
-    // Tạo merchant và NPC - ƯU TIÊN gọi sau khi game container sẵn sàng
+    // Tạo merchant và NPC - ĐẢM BẢO chỉ tạo 1 lần
     setTimeout(() => {
-      createMerchantElement();
-      createNpcElderElement();
+      if (!merchantCreated) createMerchantElement();
+      if (!npcCreated) createNpcElderElement();
     }, 100);
     
     placeCoin();
