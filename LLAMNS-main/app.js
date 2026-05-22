@@ -332,7 +332,7 @@ function getPurchasedSkinsFromFirebase(skins) {
     if (movementInterval) return;
     movementInterval = setInterval(() => {
       processMovement();
-    }, 100);
+    }, 200);
   }
   
   function stopMovementLoop() {
