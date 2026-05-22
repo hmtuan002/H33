@@ -30,19 +30,19 @@ html, body {
 /* Mobile: thu nhỏ map vừa màn hình */
 @media (max-width: 768px) {
   .game-container {
-    transform: scale(2.5);
+    transform: scale(2.0);
   }
 }
 
 @media (max-width: 480px) {
   .game-container {
-    transform: scale(1.3);
+    transform: scale(1.7);
   }
 }
 
 @media (max-width: 380px) {
   .game-container {
-    transform: scale(1.1);
+    transform: scale(1.3);
   }
 }
 
