@@ -12,22 +12,16 @@
     <div class="game-container">
     </div>
     
-    <!-- COORDINATE DISPLAY - Hiển thị tọa độ X:Y -->
+    <!-- COORDINATE DISPLAY -->
     <div class="coord-display" id="coord-display">
       📍 X: -- | Y: --
     </div>
     
-    <!-- PLAYER INFO - GÓC TRÊN BÊN TRÁI MÀN HÌNH (ĐÃ SỬA) -->
+    <!-- PLAYER INFO - GÓC TRÊN BÊN TRÁI - ĐÃ BỎ 2 NÚT -->
     <div class="player-info">
       <div>
         <label for="player-name">🏷️ Tên của bạn</label>
         <input id="player-name" maxlength="10" type="text" />
-      </div>
-      <div>
-        <button id="change-skin">🎨 Đổi Skin</button>
-      </div>
-      <div>
-        <button id="talk-npc-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">🎋 Nói chuyện</button>
       </div>
       <div class="coin-display">
         <label>💰 Xu</label>
@@ -68,7 +62,7 @@
       </div>
     </div>
 
-    <!-- NPC Dialogue Modal - ĐÃ BỎ HÌNH ẢNH NHÂN VẬT XẤU -->
+    <!-- NPC Dialogue Modal -->
     <div id="npc-modal" class="modal">
       <div class="modal-content npc-modal-content">
         <div class="modal-header npc-modal-header">
@@ -76,7 +70,6 @@
           <span id="close-npc-modal" class="close">&times;</span>
         </div>
         <div class="modal-body">
-          <!-- ĐÃ XÓA HOÀN TOÀN .npc-avatar -->
           <div class="dialogue-box" id="dialogue-box">
             <p id="dialogue-text" class="dialogue-text"></p>
             <div class="dialogue-controls">
