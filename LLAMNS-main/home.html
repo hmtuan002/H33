@@ -760,8 +760,7 @@ function renderMaps() {
   createCard.className = 'create-map-card';
   createCard.innerHTML = '<span>➕</span><p>Tạo Map Mới</p>';
   createCard.addEventListener('click', () => {
-    showToast('Trang tạo map đang được xây dựng! 🚧', 'info');
-    // window.location.href = 'create.html';
+    window.location.href = 'create.html';
   });
   grid.appendChild(createCard);
 
@@ -807,12 +806,9 @@ function renderMaps() {
 
 function enterMap(id, map) {
   showToast(`Đang vào "${map.name || 'Map'}"... 🚀`, 'success');
-  // Increment play count
-  firebase.database().ref(`maps/${id}/playCount`).transaction(v => (v || 0) + 1);
   setTimeout(() => {
-    // window.location.href = `game.html?map=${id}`;
-    showToast('Trang chơi game đang được xây dựng! 🚧', 'info');
-  }, 600);
+    window.location.href = `game.html?map=${id}`;
+  }, 500);
 }
 
 function escapeHtml(str) {
