@@ -18,32 +18,25 @@ html, body {
   width: 100%;
 }
 
+/* Camera wrapper — full screen, clips the map */
+.camera-wrapper {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .game-container { 
-  position: relative;
+  position: absolute;
   width: 240px;
   height: 208px;
   background: url(images/map.png) no-repeat no-repeat;
   image-rendering: pixelated;
-  transform-origin: center;
-}
-
-/* Mobile: thu nhỏ map vừa màn hình */
-@media (max-width: 768px) {
-  .game-container {
-    transform: scale(2.0);
-  }
-}
-
-@media (max-width: 480px) {
-  .game-container {
-    transform: scale(1.7);
-  }
-}
-
-@media (max-width: 380px) {
-  .game-container {
-    transform: scale(1.3);
-  }
+  transform-origin: top left;
+  /* camera translation set via JS */
+  will-change: transform;
+  pointer-events: auto;
 }
 
 /* Mobile Controls - Chỉ joystick */
@@ -83,8 +76,6 @@ html, body {
   .joystick-container {
     display: block;
   }
-  
-  /* Ẩn mobile controls cũ (các nút lên xuống trái phải) */
   .mobile-controls {
     display: none !important;
   }
@@ -133,29 +124,12 @@ html, body {
   background-position-x: 16px;
 }
 
-.Character[data-color="blue"] .Character_sprite {
-  background-position-y: 0px;
-}
-
-.Character[data-color="red"] .Character_sprite {
-  background-position-y: -16px;
-}
-
-.Character[data-color="orange"] .Character_sprite {
-  background-position-y: -32px;
-}
-
-.Character[data-color="yellow"] .Character_sprite {
-  background-position-y: -48px;
-}
-
-.Character[data-color="green"] .Character_sprite {
-  background-position-y: -64px;
-}
-
-.Character[data-color="purple"] .Character_sprite {
-  background-position-y: -80px;
-}
+.Character[data-color="blue"] .Character_sprite { background-position-y: 0px; }
+.Character[data-color="red"] .Character_sprite { background-position-y: -16px; }
+.Character[data-color="orange"] .Character_sprite { background-position-y: -32px; }
+.Character[data-color="yellow"] .Character_sprite { background-position-y: -48px; }
+.Character[data-color="green"] .Character_sprite { background-position-y: -64px; }
+.Character[data-color="purple"] .Character_sprite { background-position-y: -80px; }
 
 .Character_shadow {
   background: url(images/shadow.png) no-repeat no-repeat;
@@ -190,7 +164,6 @@ html, body {
   z-index: 2;
   cursor: pointer;
 }
-
 .merchant .Character_name-container {
   background: #8B4513;
   font-size: 4px;
@@ -203,7 +176,6 @@ html, body {
   z-index: 2;
   cursor: pointer;
 }
-
 .npc-elder .Character_name-container {
   background: #2E7D32;
   font-size: 4px;
@@ -211,9 +183,7 @@ html, body {
 }
 
 /* Coins */
-.Coin {
-  position: absolute;
-}
+.Coin { position: absolute; }
 
 .Coin_sprite {
   background: url(images/coin.png) no-repeat no-repeat;
@@ -239,29 +209,17 @@ html, body {
 .coord-display {
   position: fixed;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   background: rgba(0, 0, 0, 0.85);
   color: #00ff88;
   font-family: monospace;
-  font-size: 14px;
-  padding: 6px 12px;
+  font-size: 12px;
+  padding: 4px 10px;
   border-radius: 8px;
   z-index: 999;
   border: 1px solid #00ff88;
   font-weight: bold;
   letter-spacing: 1px;
-  backdrop-filter: blur(4px);
-}
-
-/* Mobile: điều chỉnh coordinate display */
-@media (max-width: 768px) {
-  .coord-display {
-    bottom: 20px;
-    right: 20px;
-    left: auto;
-    font-size: 10px;
-    padding: 4px 8px;
-  }
 }
 
 /* Player Info */
@@ -280,32 +238,16 @@ html, body {
   flex-wrap: wrap;
 }
 
-/* Mobile: thu nhỏ player info */
 @media (max-width: 768px) {
   .player-info {
-    top: 5px;
-    left: 5px;
+    top: 5px; left: 5px;
     padding: 5px 8px;
     gap: 5px;
   }
-  
-  .player-info > div {
-    padding: 3px 6px;
-  }
-  
-  label {
-    font-size: 8px;
-  }
-  
-  input[type="text"] {
-    font-size: 10px;
-    height: 22px;
-    width: 80px;
-  }
-  
-  .coin-amount {
-    font-size: 12px;
-  }
+  .player-info > div { padding: 3px 6px; }
+  label { font-size: 8px; }
+  input[type="text"] { font-size: 10px; height: 22px; width: 80px; }
+  .coin-amount { font-size: 12px; }
 }
 
 .player-info > div {
@@ -337,10 +279,7 @@ input[type="text"] {
   background: #fff;
 }
 
-.coin-display {
-  text-align: center;
-  min-width: 70px;
-}
+.coin-display { text-align: center; min-width: 70px; }
 
 .coin-amount {
   font-size: 16px;
@@ -349,15 +288,15 @@ input[type="text"] {
   text-shadow: 1px 1px 0 #333;
 }
 
-/* Modal Styles */
+/* ========================================
+   MERCHANT MODAL (giữ nguyên kiểu cũ)
+   ======================================== */
 .modal {
   display: none;
   position: fixed;
   z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(3px);
   align-items: center;
@@ -374,127 +313,19 @@ input[type="text"] {
   animation: modalSlideIn 0.3s ease-out;
 }
 
-/* Mobile: modal full hơn trên mobile */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    max-width: 95%;
-    margin: 10px;
-  }
-  
-  .modal-header h2 {
-    font-size: 1rem;
-  }
-  
-  .skin-shop-grid {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 10px;
-  }
-  
-  .skin-item {
-    padding: 8px;
-  }
-  
-  .skin-preview {
-    transform: scale(1.5);
-  }
-  
-  .skin-name {
-    font-size: 0.7rem;
-  }
-  
-  .skin-buy-btn {
-    font-size: 0.65rem;
-    padding: 6px 8px;
-  }
-}
-
-/* NPC Modal Styles */
-.npc-modal-content {
-  max-width: 500px;
-  background: linear-gradient(135deg, #1a3a1a 0%, #0a2a0a 100%);
-  border-color: #4CAF50;
-}
-
-.npc-modal-header {
-  background: linear-gradient(135deg, #2e5a2e 0%, #1a3a1a 100%);
-  border-bottom-color: #4CAF50;
-}
-
-.dialogue-box {
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: 12px;
-  padding: 20px;
-  border: 2px solid #4CAF50;
-  min-height: 180px;
-}
-
-@media (max-width: 768px) {
-  .dialogue-box {
-    padding: 15px;
-    min-height: 150px;
-  }
-  
-  .dialogue-text {
-    font-size: 0.9rem;
-    min-height: 100px;
-  }
-  
-  .dialogue-next-btn, .dialogue-close-btn {
-    padding: 6px 15px;
-    font-size: 12px;
-  }
-}
-
-.dialogue-text {
-  color: #fff;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  min-height: 120px;
-  font-weight: normal;
-}
-
-.dialogue-controls {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.dialogue-next-btn, .dialogue-close-btn {
-  padding: 8px 20px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: 14px;
-}
-
-.dialogue-next-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-  color: white;
-}
-
-.dialogue-close-btn {
-  background: linear-gradient(135deg, #666 0%, #444 100%);
-  color: white;
-}
-
-.dialogue-next-btn:hover, .dialogue-close-btn:hover {
-  transform: scale(1.05);
+  .modal-content { width: 95%; max-width: 95%; margin: 10px; }
+  .modal-header h2 { font-size: 1rem; }
+  .skin-shop-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+  .skin-item { padding: 8px; }
+  .skin-preview { transform: scale(1.5); }
+  .skin-name { font-size: 0.7rem; }
+  .skin-buy-btn { font-size: 0.65rem; padding: 6px 8px; }
 }
 
 @keyframes modalSlideIn {
-  from {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
@@ -523,15 +354,9 @@ input[type="text"] {
   transition: 0.3s;
   line-height: 1;
 }
+.close:hover { color: #ff6600; transform: scale(1.2); }
 
-.close:hover {
-  color: #ff6600;
-  transform: scale(1.2);
-}
-
-.modal-body {
-  padding: 20px;
-}
+.modal-body { padding: 20px; }
 
 .merchant-message {
   text-align: center;
@@ -558,11 +383,7 @@ input[type="text"] {
   transition: 0.2s;
   border: 2px solid #444;
 }
-
-.skin-item:hover {
-  transform: translateY(-3px);
-  border-color: #ffd700;
-}
+.skin-item:hover { transform: translateY(-3px); border-color: #ffd700; }
 
 .skin-preview {
   position: relative;
@@ -572,16 +393,8 @@ input[type="text"] {
   transform: scale(2);
   image-rendering: pixelated;
 }
-
-.skin-preview .Character_sprite {
-  top: -3px;
-  left: 0;
-}
-
-.skin-preview .Character_shadow {
-  top: 0;
-  left: 0;
-}
+.skin-preview .Character_sprite { top: -3px; left: 0; }
+.skin-preview .Character_shadow { top: 0; left: 0; }
 
 .skin-name {
   color: white;
@@ -603,15 +416,84 @@ input[type="text"] {
   color: #333;
   width: 100%;
 }
+.skin-buy-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 2px 8px rgba(255,215,0,0.5); }
+.skin-buy-btn:disabled { background: #555; cursor: not-allowed; color: #999; transform: none; }
 
-.skin-buy-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+/* ========================================
+   POKÉMON-STYLE DIALOGUE BOX
+   ======================================== */
+#npc-dialogue-box {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  /* No background overlay — game stays fully visible */
 }
 
-.skin-buy-btn:disabled {
-  background: #555;
-  cursor: not-allowed;
-  color: #999;
-  transform: none;
+.poke-dialogue-inner {
+  margin: 0 12px 12px;
+  background: #f0f0f0;
+  border: 4px solid #1a1a2e;
+  border-radius: 8px;
+  padding: 14px 18px 12px;
+  position: relative;
+  box-shadow: 0 -4px 0 #888, inset 0 2px 0 #fff;
+  min-height: 90px;
+}
+
+/* Speaker name tag */
+.poke-speaker {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  background: #1a1a2e;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 4px 4px 0 0;
+  letter-spacing: 1px;
+}
+
+.poke-text {
+  font-size: 14px;
+  color: #1a1a2e;
+  line-height: 1.5;
+  font-weight: bold;
+  font-family: 'Source Sans Pro', sans-serif;
+  min-height: 50px;
+}
+
+/* Blinking arrow indicator */
+.poke-arrow {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid #1a1a2e;
+  animation: pokeArrowBlink 0.6s step-end infinite;
+}
+
+@keyframes pokeArrowBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* When on last line — hide blink arrow, show done */
+.poke-dialogue-inner.last-line .poke-arrow {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .poke-dialogue-inner {
+    margin: 0 6px 6px;
+    padding: 12px 14px 10px;
+    min-height: 80px;
+  }
+  .poke-text { font-size: 12px; }
+  .poke-speaker { font-size: 10px; }
 }
