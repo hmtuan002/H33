@@ -66,6 +66,7 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
   let coins = {}, coinElements = {};
 
   const gameContainer = document.querySelector(".game-container");
+  const cameraPan = document.getElementById("camera-pan");
   const playerNameInput = document.querySelector("#player-name");
   const merchantModal = document.querySelector("#merchant-modal");
   const closeModalBtn = document.querySelector("#close-modal");
@@ -95,7 +96,7 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
     // Translate so player tile is centered; round to integer to avoid sub-pixel blur
     const tx = Math.round(vw / 2 - px - (TILE * CAMERA_SCALE) / 2);
     const ty = Math.round(vh / 2 - py - (TILE * CAMERA_SCALE) / 2);
-    gameContainer.style.transform = `translate(${tx}px, ${ty}px) scale(${CAMERA_SCALE})`;
+    cameraPan.style.transform = `translate(${tx}px, ${ty}px)`;
   }
 
   // ========= COIN / PLAYER UI =========
