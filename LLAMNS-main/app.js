@@ -89,12 +89,12 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
     if (!player) return;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    // Player center in scaled pixels
-    const px = (player.x * TILE + TILE / 2) * CAMERA_SCALE;
-    const py = (player.y * TILE + TILE / 2) * CAMERA_SCALE;
-    // Translate so player is at viewport center
-    const tx = vw / 2 - px;
-    const ty = vh / 2 - py;
+    // Player center in scaled pixels — use tile top-left, not center, to stay on pixel grid
+    const px = player.x * TILE * CAMERA_SCALE;
+    const py = player.y * TILE * CAMERA_SCALE;
+    // Translate so player tile is centered; round to integer to avoid sub-pixel blur
+    const tx = Math.round(vw / 2 - px - (TILE * CAMERA_SCALE) / 2);
+    const ty = Math.round(vh / 2 - py - (TILE * CAMERA_SCALE) / 2);
     gameContainer.style.transform = `translate(${tx}px, ${ty}px) scale(${CAMERA_SCALE})`;
   }
 
