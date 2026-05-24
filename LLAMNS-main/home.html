@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameVerse — Trang Chủ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-dark: #cc9f00;
+      --bg: #0d0f1a;
+      --bg2: #161928;
+      --bg3: #1e2338;
+      --accent: #7c6ef5;
+      --accent2: #5be3c0;
+      --text: #f0f2ff;
+      --text-muted: #8a90b8;
+      --border: rgba(255,255,255,0.08);
+      --card-glow: rgba(124,110,245,0.12);
+      --danger: #e24b4a;
+      --success: #3fb950;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+    /* ── AUTH OVERLAY ── */
+    #auth-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .auth-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 360px;
+      text-align: center;
+    }
+    .auth-logo {
+      font-size: 48px; margin-bottom: 8px;
+    }
+    .auth-box h1 {
+      font-size: 22px; font-weight: 900; color: var(--gold);
+      letter-spacing: 2px; margin-bottom: 6px;
+    }
+    .auth-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    .auth-input {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 15px; margin-bottom: 12px; outline: none;
+      transition: border 0.2s;
+    }
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #5b52d9);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: 'Nunito', sans-serif;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-bottom: 10px;
+    }
+    .auth-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .auth-btn.google {
+      background: linear-gradient(135deg, #ea4335, #cc2c20);
+      margin-top: 4px;
+    }
+    .auth-divider {
+      color: var(--text-muted); font-size: 13px; margin: 10px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .auth-toggle { color: var(--text-muted); font-size: 13px; }
+    .auth-toggle span { color: var(--accent); cursor: pointer; font-weight: 700; }
+    .auth-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 20px; }
+
+    /* ── MAIN APP ── */
+    #app { display: none; min-height: 100vh; }
+
+    /* TOP NAV */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,15,26,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 20px; font-weight: 900; letter-spacing: 2px;
+      color: var(--gold); font-family: 'Space Mono', monospace;
+    }
+    .nav-links {
+      display: flex; gap: 8px;
+    }
+    .nav-link {
+      padding: 7px 18px; border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      border: none; font-family: 'Nunito', sans-serif;
+      background: transparent; color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .nav-link.active, .nav-link:hover {
+      background: var(--bg3); color: var(--text);
+    }
+    .nav-link.active { color: var(--gold); }
+    .nav-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .nav-coins {
+      background: var(--bg3); border: 1px solid var(--gold);
+      border-radius: 20px; padding: 5px 14px;
+      font-weight: 700; font-size: 14px; color: var(--gold);
+    }
+    .nav-avatar-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg3); border: 2px solid var(--accent);
+      cursor: pointer; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: border-color 0.2s;
+    }
+    .nav-avatar-btn:hover { border-color: var(--gold); }
+    .logout-btn {
+      padding: 6px 14px; border-radius: 8px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── PAGE CONTENT ── */
+    .page { display: none; padding: 32px 28px; max-width: 1100px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #161928 0%, #1a1535 50%, #0d1a2e 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px;
+      margin-bottom: 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px;
+    }
+    .hero-text h2 {
+      font-size: 28px; font-weight: 900; line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .hero-text h2 span { color: var(--gold); }
+    .hero-text p { color: var(--text-muted); font-size: 15px; }
+    .hero-stats {
+      display: flex; gap: 24px;
+    }
+    .hero-stat {
+      text-align: center;
+      background: var(--bg3); border-radius: 12px;
+      padding: 12px 20px; border: 1px solid var(--border);
+    }
+    .hero-stat-num { font-size: 24px; font-weight: 900; color: var(--gold); }
+    .hero-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+    /* ── SECTION ── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .section-header h3 {
+      font-size: 18px; font-weight: 900;
+    }
+    .filter-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .filter-btn {
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: all 0.2s;
+    }
+    .filter-btn.active {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .filter-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
+    /* ── MAP CARDS ── */
+    .maps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .map-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .map-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(124,110,245,0.2);
+    }
+    .map-thumb {
+      width: 100%; height: 140px;
+      object-fit: cover; display: block;
+      background: var(--bg3);
+    }
+    .map-thumb-placeholder {
+      width: 100%; height: 140px;
+      background: linear-gradient(135deg, var(--bg3) 0%, #252a45 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+    }
+    .map-info { padding: 14px 16px; }
+    .map-name {
+      font-size: 15px; font-weight: 800; margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .map-meta {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .map-meta-item { display: flex; align-items: center; gap: 4px; }
+    .online-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success); display: inline-block;
+    }
+    .map-footer {
+      padding: 0 16px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .map-creator { font-size: 11px; color: var(--text-muted); }
+    .play-btn {
+      padding: 6px 18px; border-radius: 8px;
+      background: var(--accent); border: none;
+      color: #fff; font-size: 13px; font-weight: 800;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .play-btn:hover { opacity: 0.85; }
+    .map-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 700;
+      background: rgba(124,110,245,0.15); color: var(--accent);
+    }
+    .no-maps {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+      font-size: 15px;
+    }
+    .no-maps span { font-size: 40px; display: block; margin-bottom: 12px; }
+
+    /* ── LOADING ── */
+    .loading-spinner {
+      text-align: center; padding: 40px; color: var(--text-muted);
+      font-size: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 30px; height: 30px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+    }
+
+    /* ── AVATAR PAGE ── */
+    .avatar-layout {
+      display: grid; grid-template-columns: 280px 1fr; gap: 24px;
+    }
+    .avatar-preview-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 20px; text-align: center;
+    }
+    .avatar-character {
+      width: 64px; height: 64px; margin: 0 auto 20px;
+      image-rendering: pixelated;
+      position: relative;
+    }
+    .avatar-sprite {
+      background: url(images/characters.png) no-repeat;
+      width: 16px; height: 16px;
+      transform: scale(4); transform-origin: top left;
+      position: absolute;
+    }
+    .avatar-shadow {
+      background: url(images/shadow.png) no-repeat;
+      width: 16px; height: 16px;
+      transform: scale(4); transform-origin: top left;
+      position: absolute;
+    }
+    .avatar-name {
+      font-size: 18px; font-weight: 800; margin-bottom: 6px;
+    }
+    .avatar-email { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .avatar-name-input {
+      width: 100%; padding: 10px 14px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 14px; outline: none; text-align: center; font-weight: 700;
+      margin-bottom: 14px; transition: border 0.2s;
+    }
+    .avatar-name-input:focus { border-color: var(--accent); }
+    .save-name-btn {
+      width: 100%; padding: 10px;
+      background: var(--bg3); border: 1px solid var(--accent);
+      border-radius: 10px; color: var(--accent);
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .save-name-btn:hover { background: var(--accent); color: #fff; }
+    .coins-info {
+      margin-top: 20px; padding: 14px;
+      background: var(--bg3); border-radius: 10px;
+      border: 1px solid rgba(255,215,0,0.25);
+    }
+    .coins-big { font-size: 28px; font-weight: 900; color: var(--gold); }
+    .coins-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .skin-panel { }
+    .skin-panel h3 {
+      font-size: 18px; font-weight: 900; margin-bottom: 6px;
+    }
+    .skin-panel p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .skin-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px;
+    }
+    .skin-card {
+      background: var(--bg2); border: 2px solid var(--border);
+      border-radius: 14px; padding: 16px 10px; text-align: center;
+      transition: all 0.2s;
+    }
+    .skin-card.owned { border-color: var(--success); }
+    .skin-card.equipped { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+    .skin-card:hover { transform: translateY(-2px); }
+    .skin-sprite-wrap {
+      width: 64px; height: 64px; margin: 0 auto 10px;
+      position: relative; image-rendering: pixelated;
+    }
+    .skin-sprite {
+      background: url(images/characters.png) no-repeat;
+      width: 16px; height: 16px;
+      transform: scale(4); transform-origin: top left;
+      position: absolute;
+    }
+    .skin-shadow {
+      background: url(images/shadow.png) no-repeat;
+      width: 16px; height: 16px;
+      transform: scale(4); transform-origin: top left;
+      position: absolute;
+    }
+    .skin-color-name {
+      font-size: 13px; font-weight: 800; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .skin-action-btn {
+      width: 100%; padding: 7px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: 'Nunito', sans-serif; border: none;
+      transition: all 0.2s;
+    }
+    .skin-action-btn.buy {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #222;
+    }
+    .skin-action-btn.equip {
+      background: var(--bg3); border: 1px solid var(--success);
+      color: var(--success);
+    }
+    .skin-action-btn.equipped-state {
+      background: rgba(255,215,0,0.1); border: 1px solid var(--gold);
+      color: var(--gold); cursor: default;
+    }
+    .skin-action-btn.disabled {
+      background: var(--bg3); color: var(--text-muted);
+      cursor: not-allowed; opacity: 0.6;
+    }
+    .skin-action-btn.buy:hover { opacity: 0.85; }
+    .skin-action-btn.equip:hover { background: var(--success); color: #fff; }
+    .skin-badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 4px; font-size: 11px; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .skin-badge.free { background: rgba(63,185,80,0.15); color: var(--success); }
+    .skin-badge.price { background: rgba(255,215,0,0.12); color: var(--gold); }
+    .skin-badge.owned-badge { background: rgba(63,185,80,0.15); color: var(--success); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 22px;
+      font-size: 14px; font-weight: 700;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      z-index: 9999; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error { border-color: var(--danger); color: var(--danger); }
+    #toast.info { border-color: var(--accent); color: var(--accent); }
+
+    /* ── CREATE MAP BTN ── */
+    .create-map-card {
+      background: linear-gradient(135deg, rgba(124,110,245,0.12) 0%, rgba(91,227,192,0.08) 100%);
+      border: 2px dashed rgba(124,110,245,0.4);
+      border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 200px; gap: 10px;
+    }
+    .create-map-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .create-map-card span { font-size: 36px; }
+    .create-map-card p { font-size: 14px; font-weight: 800; color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .page { padding: 20px 16px; }
+      .navbar { padding: 0 16px; }
+      .hero { flex-direction: column; }
+      .hero-stats { flex-wrap: wrap; gap: 12px; }
+      .avatar-layout { grid-template-columns: 1fr; }
+      .nav-logo { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">🎮</div>
+    <h1>GAMEVERSE</h1>
+    <p>Đăng nhập để khám phá thế giới game</p>
+
+    <div id="auth-forms">
+      <input class="auth-input" id="auth-email" type="email" placeholder="Email của bạn">
+      <input class="auth-input" id="auth-password" type="password" placeholder="Mật khẩu">
+      <button class="auth-btn" id="auth-action-btn">Đăng nhập</button>
+      <div class="auth-divider">hoặc</div>
+      <button class="auth-btn google" id="google-btn">🔵 Tiếp tục với Google</button>
+      <div class="auth-toggle" id="auth-toggle-text">
+        Chưa có tài khoản? <span id="auth-toggle-link">Đăng ký ngay</span>
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">🎮 GAMEVERSE</div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home">🏠 Trang chủ</button>
+      <button class="nav-link" data-page="avatar">👤 Avatar</button>
+    </div>
+    <div class="nav-right">
+      <div class="nav-coins">💰 <span id="nav-coins">0</span></div>
+      <button class="logout-btn" id="logout-btn">Đăng xuất</button>
+    </div>
+  </nav>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-text">
+        <h2>Chào mừng, <span id="hero-name">Người chơi</span>! 👋</h2>
+        <p>Khám phá hàng trăm thế giới do cộng đồng tạo ra. Chơi, thu thập xu và mở khóa skin mới.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="stat-maps">—</div>
+          <div class="hero-stat-label">Maps</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="stat-online">—</div>
+          <div class="hero-stat-label">Đang online</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" id="stat-coins">—</div>
+          <div class="hero-stat-label">Xu của bạn</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map list -->
+    <div class="section-header">
+      <h3>🗺️ Danh sách Map</h3>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="all">Tất cả</button>
+      <button class="filter-btn" data-filter="popular">🔥 Phổ biến</button>
+      <button class="filter-btn" data-filter="newest">✨ Mới nhất</button>
+      <button class="filter-btn" data-filter="mine">📌 Của tôi</button>
+    </div>
+
+    <div id="maps-grid" class="maps-grid">
+      <div class="loading-spinner"><div class="spinner"></div>Đang tải maps...</div>
+    </div>
+  </div>
+
+  <!-- AVATAR PAGE -->
+  <div class="page" id="page-avatar">
+    <div class="avatar-layout">
+      <!-- Left: preview + info -->
+      <div>
+        <div class="avatar-preview-card">
+          <div class="avatar-character" id="avatar-display">
+            <div class="avatar-shadow"></div>
+            <div class="avatar-sprite" id="avatar-sprite-el"></div>
+          </div>
+          <div class="avatar-name" id="av-display-name">Player</div>
+          <div class="avatar-email" id="av-display-email">—</div>
+          <input class="avatar-name-input" id="av-name-input" maxlength="12" placeholder="Tên hiển thị">
+          <button class="save-name-btn" id="av-save-name">💾 Lưu tên</button>
+          <div class="coins-info">
+            <div class="coins-big">💰 <span id="av-coins">0</span></div>
+            <div class="coins-label">Xu hiện có — thu thập trong các map</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: skin shop -->
+      <div class="skin-panel">
+        <h3>🎨 Cửa hàng Skin</h3>
+        <p>Mua skin mới bằng xu thu thập được khi chơi trong các map.</p>
+        <div class="skin-grid" id="skin-grid"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
+  authDomain: "vvss-b7a49.firebaseapp.com",
+  databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "vvss-b7a49",
+  storageBucket: "vvss-b7a49.firebasestorage.app",
+  messagingSenderId: "562837285603",
+  appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const SKIN_DATA = [
+  { color: 'blue',   name: 'Xanh Dương', price: 0,  spriteY: 0    },
+  { color: 'red',    name: 'Đỏ Rực',     price: 10, spriteY: -16  },
+  { color: 'orange', name: 'Cam Nắng',   price: 15, spriteY: -32  },
+  { color: 'yellow', name: 'Vàng Óng',   price: 20, spriteY: -48  },
+  { color: 'green',  name: 'Xanh Lá',    price: 25, spriteY: -64  },
+  { color: 'purple', name: 'Tím Hoàng',  price: 30, spriteY: -80  },
+];
+
+const COLOR_SPRITE_Y = { blue:0, red:-16, orange:-32, yellow:-48, green:-64, purple:-80 };
+
+// ─── STATE ────────────────────────────────────────────────────
+let currentUser = null;
+let playerData = null;
+let allMapsData = {};
+let isRegisterMode = false;
+let currentFilter = 'all';
+
+// ─── TOAST ────────────────────────────────────────────────────
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ─── AUTH FORM ────────────────────────────────────────────────
+let authMode = 'login';
+
+document.getElementById('auth-toggle-link').addEventListener('click', () => {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  const btn = document.getElementById('auth-action-btn');
+  const toggle = document.getElementById('auth-toggle-text');
+  if (authMode === 'register') {
+    btn.textContent = 'Đăng ký';
+    toggle.innerHTML = 'Đã có tài khoản? <span id="auth-toggle-link">Đăng nhập</span>';
+  } else {
+    btn.textContent = 'Đăng nhập';
+    toggle.innerHTML = 'Chưa có tài khoản? <span id="auth-toggle-link">Đăng ký ngay</span>';
+  }
+  document.getElementById('auth-error').textContent = '';
+  // Rebind
+  document.getElementById('auth-toggle-link').addEventListener('click', arguments.callee);
+});
+
+document.getElementById('auth-action-btn').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'Vui lòng nhập email và mật khẩu.'; return; }
+  try {
+    if (authMode === 'login') {
+      await firebase.auth().signInWithEmailAndPassword(email, pass);
+    } else {
+      await firebase.auth().createUserWithEmailAndPassword(email, pass);
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'Không tìm thấy tài khoản.',
+      'auth/wrong-password': 'Mật khẩu không đúng.',
+      'auth/email-already-in-use': 'Email đã được sử dụng.',
+      'auth/weak-password': 'Mật khẩu cần ít nhất 6 ký tự.',
+      'auth/invalid-email': 'Email không hợp lệ.',
+    };
+    errEl.textContent = msgs[e.code] || e.message;
+  }
+});
+
+document.getElementById('google-btn').addEventListener('click', async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await firebase.auth().signInWithPopup(provider);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message;
+  }
+});
+
+// ─── AUTH STATE ───────────────────────────────────────────────
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await initPlayerData();
+    loadMaps();
+    listenOnlinePlayers();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+// ─── PLAYER DATA ──────────────────────────────────────────────
+async function initPlayerData() {
+  const ref = firebase.database().ref(`players/${currentUser.uid}`);
+  const snap = await ref.once('value');
+  if (!snap.exists()) {
+    const defaultName = generateName();
+    await ref.set({
+      id: currentUser.uid,
+      name: defaultName,
+      email: currentUser.email || '',
+      color: 'blue',
+      coins: 0,
+      purchasedSkins: { blue: true },
+      direction: 'right',
+      x: 1, y: 4, px: 24, py: 72,
+    });
+  }
+  ref.on('value', (s) => {
+    playerData = s.val();
+    if (!playerData) return;
+    updateUIWithPlayerData();
+  });
+}
+
+function updateUIWithPlayerData() {
+  if (!playerData) return;
+  const name = playerData.name || 'Player';
+  const coins = playerData.coins || 0;
+  const color = playerData.color || 'blue';
+  const sprY = COLOR_SPRITE_Y[color] || 0;
+
+  document.getElementById('hero-name').textContent = name;
+  document.getElementById('nav-coins').textContent = coins;
+  document.getElementById('stat-coins').textContent = coins;
+  document.getElementById('av-display-name').textContent = name;
+  document.getElementById('av-display-email').textContent = currentUser.email || '';
+  document.getElementById('av-name-input').value = name;
+  document.getElementById('av-coins').textContent = coins;
+
+  // Update avatar sprite
+  const sprEl = document.getElementById('avatar-sprite-el');
+  if (sprEl) sprEl.style.backgroundPositionY = sprY + 'px';
+
+  renderSkinGrid();
+}
+
+function generateName() {
+  const adj = ['COOL','SWIFT','BRAVE','WILD','BOLD','DARK','SWIFT'];
+  const noun = ['BEAR','WOLF','HAWK','LION','TIGER','PANDA','EAGLE'];
+  return adj[Math.floor(Math.random()*adj.length)] + ' ' + noun[Math.floor(Math.random()*noun.length)];
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────
+document.querySelectorAll('.nav-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  });
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  firebase.auth().signOut();
+});
+
+// ─── ONLINE COUNTER ───────────────────────────────────────────
+function listenOnlinePlayers() {
+  firebase.database().ref('players').on('value', snap => {
+    const all = snap.val() || {};
+    const count = Object.keys(all).length;
+    document.getElementById('stat-online').textContent = count;
+  });
+}
+
+// ─── MAPS ─────────────────────────────────────────────────────
+function loadMaps() {
+  firebase.database().ref('maps').on('value', snap => {
+    allMapsData = snap.val() || {};
+    const count = Object.keys(allMapsData).length;
+    document.getElementById('stat-maps').textContent = count;
+    renderMaps();
+  });
+}
+
+function renderMaps() {
+  const grid = document.getElementById('maps-grid');
+  let maps = Object.entries(allMapsData);
+
+  if (currentFilter === 'popular') {
+    maps.sort((a, b) => (b[1].playCount || 0) - (a[1].playCount || 0));
+  } else if (currentFilter === 'newest') {
+    maps.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  } else if (currentFilter === 'mine') {
+    maps = maps.filter(([,m]) => m.creatorId === currentUser.uid);
+  }
+
+  grid.innerHTML = '';
+
+  // "Create map" card always first
+  const createCard = document.createElement('div');
+  createCard.className = 'create-map-card';
+  createCard.innerHTML = '<span>➕</span><p>Tạo Map Mới</p>';
+  createCard.addEventListener('click', () => {
+    showToast('Trang tạo map đang được xây dựng! 🚧', 'info');
+    // window.location.href = 'create.html';
+  });
+  grid.appendChild(createCard);
+
+  if (maps.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'no-maps';
+    empty.innerHTML = '<span>🌐</span>Chưa có map nào. Hãy tạo map đầu tiên!';
+    grid.appendChild(empty);
+    return;
+  }
+
+  maps.forEach(([id, map]) => {
+    const card = document.createElement('div');
+    card.className = 'map-card';
+    const imgHTML = map.imageUrl
+      ? `<img class="map-thumb" src="${escapeHtml(map.imageUrl)}" alt="${escapeHtml(map.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const placeholderStyle = map.imageUrl ? 'style="display:none"' : '';
+    card.innerHTML = `
+      ${imgHTML}
+      <div class="map-thumb-placeholder" ${placeholderStyle}>🗺️</div>
+      <div class="map-info">
+        <div class="map-name">${escapeHtml(map.name || 'Không tên')}</div>
+        <div class="map-meta">
+          <div class="map-meta-item"><span class="online-dot"></span> ${map.onlineCount || 0} online</div>
+          <div class="map-meta-item">👁️ ${map.playCount || 0} lượt</div>
+          <span class="map-tag">${map.gridWidth || '?'}×${map.gridHeight || '?'}</span>
+        </div>
+      </div>
+      <div class="map-footer">
+        <div class="map-creator">bởi ${escapeHtml(map.creatorName || 'Ẩn danh')}</div>
+        <button class="play-btn">▶ Chơi</button>
+      </div>
+    `;
+    card.querySelector('.play-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      enterMap(id, map);
+    });
+    card.addEventListener('click', () => enterMap(id, map));
+    grid.appendChild(card);
+  });
+}
+
+function enterMap(id, map) {
+  showToast(`Đang vào "${map.name || 'Map'}"... 🚀`, 'success');
+  // Increment play count
+  firebase.database().ref(`maps/${id}/playCount`).transaction(v => (v || 0) + 1);
+  setTimeout(() => {
+    // window.location.href = `game.html?map=${id}`;
+    showToast('Trang chơi game đang được xây dựng! 🚧', 'info');
+  }, 600);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderMaps();
+  });
+});
+
+// ─── SKIN SHOP ────────────────────────────────────────────────
+function renderSkinGrid() {
+  const grid = document.getElementById('skin-grid');
+  if (!grid || !playerData) return;
+  const owned = playerData.purchasedSkins || { blue: true };
+  const coins = playerData.coins || 0;
+  const equipped = playerData.color || 'blue';
+
+  grid.innerHTML = '';
+  SKIN_DATA.forEach(skin => {
+    const isOwned = !!owned[skin.color];
+    const isEquipped = equipped === skin.color;
+    const canAfford = coins >= skin.price;
+
+    const card = document.createElement('div');
+    card.className = 'skin-card' + (isEquipped ? ' equipped' : isOwned ? ' owned' : '');
+
+    let badgeHTML = skin.price === 0
+      ? '<span class="skin-badge free">MIỄN PHÍ</span>'
+      : isOwned
+        ? '<span class="skin-badge owned-badge">ĐÃ SỞ HỮU</span>'
+        : `<span class="skin-badge price">💰 ${skin.price} xu</span>`;
+
+    let btnClass, btnText;
+    if (isEquipped) { btnClass = 'equipped-state'; btnText = '✓ Đang dùng'; }
+    else if (isOwned) { btnClass = 'equip'; btnText = 'Trang bị'; }
+    else if (canAfford) { btnClass = 'buy'; btnText = `Mua ${skin.price} xu`; }
+    else { btnClass = 'disabled'; btnText = `Thiếu ${skin.price - coins} xu`; }
+
+    card.innerHTML = `
+      <div class="skin-sprite-wrap">
+        <div class="skin-shadow"></div>
+        <div class="skin-sprite" style="background-position-y: ${skin.spriteY}px"></div>
+      </div>
+      ${badgeHTML}
+      <div class="skin-color-name">${skin.name}</div>
+      <button class="skin-action-btn ${btnClass}">${btnText}</button>
+    `;
+
+    const btn = card.querySelector('.skin-action-btn');
+    if (!isEquipped && (isOwned || canAfford)) {
+      btn.addEventListener('click', () => handleSkinAction(skin, isOwned));
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+async function handleSkinAction(skin, isOwned) {
+  if (!playerData || !currentUser) return;
+  const ref = firebase.database().ref(`players/${currentUser.uid}`);
+  const coins = playerData.coins || 0;
+  const owned = playerData.purchasedSkins || { blue: true };
+
+  if (isOwned) {
+    await ref.update({ color: skin.color });
+    showToast(`✅ Đã trang bị skin ${skin.name}!`, 'success');
+  } else if (coins >= skin.price) {
+    await ref.update({
+      coins: coins - skin.price,
+      color: skin.color,
+      purchasedSkins: { ...owned, [skin.color]: true }
+    });
+    showToast(`🎉 Mua thành công skin ${skin.name}!`, 'success');
+  }
+}
+
+// ─── AVATAR NAME SAVE ─────────────────────────────────────────
+document.getElementById('av-save-name').addEventListener('click', async () => {
+  const newName = document.getElementById('av-name-input').value.trim();
+  if (!newName) { showToast('Vui lòng nhập tên!', 'error'); return; }
+  if (!currentUser) return;
+  await firebase.database().ref(`players/${currentUser.uid}`).update({ name: newName });
+  showToast('✅ Đã lưu tên!', 'success');
+});
+
+// ─── DEMO MAP DATA (nếu DB trống) ─────────────────────────────
+async function seedDemoMapsIfEmpty() {
+  const snap = await firebase.database().ref('maps').once('value');
+  if (snap.exists()) return;
+  const demoMaps = [
+    { name: 'Làng Nón Lá', imageUrl: '', gridWidth: 15, gridHeight: 13, playCount: 42, creatorName: 'Admin', creatorId: 'admin', onlineCount: 3, createdAt: Date.now() - 86400000 },
+    { name: 'Phố Cổ Hội An', imageUrl: '', gridWidth: 20, gridHeight: 16, playCount: 27, creatorName: 'HoiAnDev', creatorId: 'demo2', onlineCount: 1, createdAt: Date.now() - 3600000 },
+    { name: 'Vịnh Hạ Long', imageUrl: '', gridWidth: 30, gridHeight: 20, playCount: 15, creatorName: 'VNMapper', creatorId: 'demo3', onlineCount: 0, createdAt: Date.now() },
+  ];
+  for (const m of demoMaps) {
+    await firebase.database().ref('maps').push(m);
+  }
+}
+
+firebase.auth().onAuthStateChanged(user => {
+  if (user) seedDemoMapsIfEmpty();
+});
+</script>
+</body>
+</html>
