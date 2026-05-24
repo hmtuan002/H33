@@ -32,9 +32,10 @@ const CAMERA_SCALE = 4;
 const TILE = 16;
 
 // Movement tuning
-const SPEED       = 0.06;  // pixels per ms at full input
-const FRICTION    = 0.75;  // velocity multiplier per frame
-const CAMERA_LERP = 1.0;   // 1.0 = instant follow (no lag, no jitter)
+const MAX_SPEED   = 1.5;   // pixels per frame tối đa
+const ACCEL       = 0.4;   // tăng tốc mỗi frame
+const FRICTION    = 0.75;  // hệ số giảm tốc mỗi frame
+const CAMERA_LERP = 1.0;
 
 // Collision: treat each grid cell as a 16×16 box.
 // Player hitbox is 8×8 centered in the tile.
@@ -184,8 +185,14 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
 
     // --- Velocity ---
     if (inputX !== 0 || inputY !== 0) {
-      velX += inputX * SPEED * dt;
-      velY += inputY * SPEED * dt;
+      velX += inputX * ACCEL;
+      velY += inputY * ACCEL;
+      // Giới hạn tốc độ tối đa
+      const speed = Math.sqrt(velX * velX + velY * velY);
+      if (speed > MAX_SPEED) {
+        velX = (velX / speed) * MAX_SPEED;
+        velY = (velY / speed) * MAX_SPEED;
+      }
     }
     velX *= FRICTION;
     velY *= FRICTION;
@@ -195,8 +202,8 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
     if (Math.abs(velY) < 0.01) velY = 0;
 
     if ((velX !== 0 || velY !== 0) && playerId && players[playerId]) {
-      // Move with collision
-      const result = moveAndSlide(localX, localY, velX * dt, velY * dt);
+      // Move with collision — velocity đã là px/frame, không nhân dt nữa
+      const result = moveAndSlide(localX, localY, velX, velY);
       // If blocked, zero out that velocity component
       if (result.x === localX) velX = 0;
       if (result.y === localY) velY = 0;
