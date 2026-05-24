@@ -25,18 +25,25 @@ html, body {
   width: 100%; height: 100%;
   overflow: hidden;
   pointer-events: none;
-  image-rendering: pixelated;
 }
 
-.game-container { 
+/* Camera pan layer — translate only, NO scale here */
+.camera-pan {
   position: absolute;
+  top: 0; left: 0;
+  pointer-events: auto;
+  will-change: transform;
+}
+
+/* Scale-only layer — scale only, NO translate here */
+.game-container { 
+  position: relative;
   width: 240px;
   height: 208px;
   background: url(images/map.png) no-repeat no-repeat;
   image-rendering: pixelated;
+  transform: scale(4);
   transform-origin: top left;
-  will-change: transform;
-  pointer-events: auto;
 }
 
 /* Mobile Controls - Chỉ joystick */
