@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>GameVerse — Chơi Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #FFD700; --gold-dark: #cc9f00;
+      --bg: #0d0f1a; --bg2: #161928; --bg3: #1e2338;
+      --accent: #7c6ef5; --accent2: #5be3c0;
+      --text: #f0f2ff; --text-muted: #8a90b8;
+      --border: rgba(255,255,255,0.08);
+      --danger: #e24b4a; --success: #3fb950;
+      --chat-bg: rgba(13,15,26,0.92);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%; width: 100%; overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+      background: #0d0f1a; color: var(--text);
+      position: fixed;
+    }
+
+    /* ── AUTH OVERLAY ── */
+    #auth-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .auth-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 36px; width: 360px; text-align: center;
+    }
+    .auth-logo { font-size: 48px; margin-bottom: 8px; }
+    .auth-box h1 { font-size: 22px; font-weight: 900; color: var(--gold); letter-spacing: 2px; margin-bottom: 6px; }
+    .auth-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    .auth-input {
+      width: 100%; padding: 12px 16px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 15px; margin-bottom: 12px; outline: none; transition: border 0.2s;
+    }
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #5b52d9);
+      border: none; border-radius: 10px; color: #fff;
+      font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-bottom: 10px;
+    }
+    .auth-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .auth-btn.google { background: linear-gradient(135deg, #ea4335, #cc2c20); margin-top: 4px; }
+    .auth-divider {
+      color: var(--text-muted); font-size: 13px; margin: 10px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .auth-toggle { color: var(--text-muted); font-size: 13px; }
+    .auth-toggle span { color: var(--accent); cursor: pointer; font-weight: 700; }
+    .auth-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 20px; }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 500;
+      background: var(--bg); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+    }
+    .loading-logo { font-size: 48px; animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+    .loading-text { font-size: 18px; font-weight: 700; color: var(--gold); }
+    .loading-bar-wrap { width: 200px; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .loading-bar { height: 100%; background: var(--accent); border-radius: 3px; animation: loadBar 1.5s ease infinite; }
+    @keyframes loadBar { 0% { width: 0; } 70% { width: 90%; } 100% { width: 100%; } }
+
+    /* ── MAIN GAME APP ── */
+    #app { display: none; position: fixed; inset: 0; }
+
+    /* ── TOP HUD ── */
+    .hud-top {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 54px; background: rgba(13,15,26,0.88);
+      backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 16px; gap: 12px;
+    }
+    .hud-back {
+      padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: all 0.2s; text-decoration: none;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .hud-back:hover { border-color: var(--accent); color: var(--text); }
+    .hud-map-name {
+      font-size: 16px; font-weight: 900;
+      color: var(--gold); letter-spacing: 1px;
+      font-family: 'Space Mono', monospace; flex: 1;
+    }
+    .hud-coins {
+      background: var(--bg3); border: 1px solid var(--gold);
+      border-radius: 20px; padding: 5px 14px;
+      font-weight: 700; font-size: 14px; color: var(--gold);
+    }
+    .hud-online {
+      background: var(--bg3); border: 1px solid var(--success);
+      border-radius: 20px; padding: 5px 12px;
+      font-weight: 700; font-size: 13px; color: var(--success);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .online-pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: onlinePulse 1.5s ease infinite;
+    }
+    @keyframes onlinePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* ── GAME CANVAS AREA ── */
+    .camera-wrapper {
+      position: fixed; inset: 0;
+      top: 54px; /* below hud */
+      overflow: hidden;
+    }
+    .camera-pan {
+      position: absolute; top: 0; left: 0;
+      will-change: transform;
+    }
+    .game-container {
+      position: relative;
+      image-rendering: pixelated;
+    }
+
+    /* Character sprites */
+    .Character { position: absolute; }
+    .Character.you { z-index: 10; }
+    .Character_you-arrow { display: none; position: absolute; top: -12px; left: 3px; font-size: 10px; animation: arrowBounce 0.6s ease infinite; }
+    @keyframes arrowBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    .Character.you .Character_you-arrow { display: block; }
+
+    .Character_sprite {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: url(images/characters.png) no-repeat;
+      image-rendering: pixelated;
+    }
+    .Character[data-direction="right"] .Character_sprite { background-position-x: -16px; }
+    .Character[data-direction="left"] .Character_sprite { background-position-x: 0px; }
+
+    .Character[data-color="blue"] .Character_sprite { background-position-y: 0px; }
+    .Character[data-color="red"] .Character_sprite { background-position-y: -16px; }
+    .Character[data-color="orange"] .Character_sprite { background-position-y: -32px; }
+    .Character[data-color="yellow"] .Character_sprite { background-position-y: -48px; }
+    .Character[data-color="green"] .Character_sprite { background-position-y: -64px; }
+    .Character[data-color="purple"] .Character_sprite { background-position-y: -80px; }
+
+    .Character_shadow {
+      position: absolute;
+      background: url(images/shadow.png) no-repeat;
+      width: 16px; height: 16px;
+      image-rendering: pixelated;
+    }
+
+    .Character_name-container {
+      position: absolute; top: -13px; left: -6px;
+      font-size: 5px; padding: 1px 3px;
+      border-radius: 3px; background: #222; color: white;
+      font-weight: 900; text-transform: uppercase;
+      white-space: nowrap; z-index: 5;
+      font-family: 'Space Mono', monospace;
+      max-width: 60px; overflow: hidden; text-overflow: ellipsis;
+    }
+    .Character_coins { margin-left: 2px; color: var(--gold); }
+
+    /* Chat bubble above character */
+    .chat-bubble {
+      position: absolute;
+      bottom: 22px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13,15,26,0.92);
+      border: 1px solid var(--accent);
+      border-radius: 8px 8px 8px 2px;
+      padding: 3px 6px;
+      font-size: 5px;
+      color: #fff;
+      white-space: nowrap;
+      max-width: 80px;
+      overflow: hidden; text-overflow: ellipsis;
+      z-index: 20;
+      pointer-events: none;
+      animation: bubblePop 0.2s ease;
+    }
+    @keyframes bubblePop { from { transform: translateX(-50%) scale(0.8); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+    .chat-bubble::after {
+      content: ''; position: absolute;
+      bottom: -5px; left: 6px;
+      border: 3px solid transparent;
+      border-top-color: var(--accent);
+    }
+
+    /* Coin */
+    .Coin { position: absolute; }
+    .Coin_sprite {
+      position: absolute; width: 16px; height: 16px;
+      background: url(images/coin.png) no-repeat;
+      image-rendering: pixelated;
+      animation: coinFloat 0.8s ease infinite alternate;
+    }
+    @keyframes coinFloat { from { transform: translateY(0); } to { transform: translateY(4px); } }
+    .Coin_shadow {
+      position: absolute; width: 16px; height: 16px;
+      background: url(images/coin-shadow.png) no-repeat;
+      image-rendering: pixelated;
+    }
+
+    /* ── COORD DISPLAY ── */
+    .coord-display {
+      position: fixed; bottom: 12px; right: 12px;
+      background: rgba(0,0,0,0.8); color: #00ff88;
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      padding: 4px 10px; border-radius: 8px; z-index: 200;
+      border: 1px solid #00ff88; font-weight: 700; letter-spacing: 1px;
+    }
+
+    /* ── JOYSTICK ── */
+    .joystick-container {
+      position: fixed; bottom: 28px; left: 28px; z-index: 200;
+      display: none;
+    }
+    @media (max-width: 768px) { .joystick-container { display: block; } }
+    .joystick-base {
+      width: 110px; height: 110px;
+      background: rgba(0,0,0,0.55); border-radius: 50%;
+      backdrop-filter: blur(8px);
+      border: 3px solid rgba(255,215,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .joystick-thumb {
+      width: 50px; height: 50px;
+      background: radial-gradient(circle, #ffd700 0%, #ff9900 100%);
+      border-radius: 50%; cursor: pointer;
+      transition: transform 0.05s linear;
+      box-shadow: 0 0 12px rgba(255,215,0,0.5);
+    }
+
+    /* ── CHAT PANEL ── */
+    #chat-panel {
+      position: fixed; right: 0; bottom: 0;
+      width: 300px; height: 340px;
+      background: var(--chat-bg);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      border-radius: 12px 0 0 0;
+      display: flex; flex-direction: column;
+      z-index: 300; backdrop-filter: blur(12px);
+      transition: transform 0.3s ease;
+    }
+    #chat-panel.collapsed { transform: translateY(calc(100% - 42px)); }
+
+    .chat-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      cursor: pointer; flex-shrink: 0; user-select: none;
+    }
+    .chat-title { font-size: 13px; font-weight: 900; flex: 1; }
+    .chat-collapse-btn { font-size: 14px; color: var(--text-muted); transition: transform 0.3s; }
+    #chat-panel.collapsed .chat-collapse-btn { transform: rotate(180deg); }
+
+    .chat-tabs {
+      display: flex; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .chat-tab {
+      flex: 1; padding: 7px 0; text-align: center;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .chat-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+
+    .chat-msg {
+      font-size: 12px; line-height: 1.4;
+      animation: msgSlide 0.2s ease;
+    }
+    @keyframes msgSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .chat-msg-name {
+      font-weight: 900; margin-right: 4px;
+      font-size: 11px;
+    }
+    .chat-msg-name.you { color: var(--accent2); }
+    .chat-msg-name.other { color: var(--gold); }
+    .chat-msg-name.system { color: var(--text-muted); }
+    .chat-msg-text { color: var(--text); word-break: break-word; }
+    .chat-msg.system-msg .chat-msg-text { color: var(--text-muted); font-style: italic; }
+
+    .chat-input-row {
+      display: flex; gap: 6px; padding: 8px 10px;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; padding: 8px 10px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Nunito', sans-serif; font-size: 13px;
+      outline: none; transition: border 0.2s;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-send-btn {
+      padding: 8px 12px; border-radius: 8px; border: none;
+      background: var(--accent); color: #fff;
+      font-weight: 900; font-size: 13px; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .chat-send-btn:hover { opacity: 0.85; }
+    .chat-tag {
+      display: inline-block; font-size: 9px; font-weight: 900;
+      padding: 1px 5px; border-radius: 10px; margin-right: 4px; vertical-align: middle;
+    }
+    .tag-world { background: rgba(124,110,245,0.3); color: var(--accent); border: 1px solid var(--accent); }
+    .tag-map { background: rgba(91,227,192,0.3); color: var(--accent2); border: 1px solid var(--accent2); }
+
+    /* Mobile: narrow chat */
+    @media (max-width: 768px) {
+      #chat-panel { width: 100%; border-radius: 12px 12px 0 0; height: 280px; }
+      #chat-panel.collapsed { transform: translateY(calc(100% - 42px)); }
+    }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed; top: 68px; left: 50%;
+      transform: translateX(-50%); z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 20px;
+      font-size: 14px; font-weight: 700;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+      white-space: nowrap;
+    }
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+    .toast.info { border-color: var(--accent); color: var(--accent); }
+    @keyframes toastIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+    /* ── MAP LOADING STATE ── */
+    #map-not-found {
+      position: fixed; inset: 0; z-index: 400;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; background: var(--bg);
+    }
+    #map-not-found h2 { font-size: 24px; font-weight: 900; color: var(--danger); }
+    #map-not-found p { color: var(--text-muted); }
+    #map-not-found a { padding: 10px 24px; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 700; text-decoration: none; }
+
+    /* Spawn point debug (hidden in production) */
+    .spawn-marker { position: absolute; width: 16px; height: 16px; border: 2px solid #5be3c0; border-radius: 50%; pointer-events: none; opacity: 0.5; display: none; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">🎮</div>
+    <h1>GAMEVERSE</h1>
+    <p>Đăng nhập để vào chơi game</p>
+    <div id="auth-mode-login">
+      <input class="auth-input" id="auth-email" type="email" placeholder="Email" autocomplete="email">
+      <input class="auth-input" id="auth-password" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+      <button class="auth-btn" id="auth-login-btn">Đăng nhập</button>
+      <div class="auth-divider">hoặc</div>
+      <button class="auth-btn google" id="auth-google-btn">🔑 Đăng nhập bằng Google</button>
+      <div class="auth-error" id="auth-error"></div>
+      <div class="auth-toggle">Chưa có tài khoản? <span id="go-register">Đăng ký</span></div>
+    </div>
+    <div id="auth-mode-register" style="display:none">
+      <input class="auth-input" id="reg-email" type="email" placeholder="Email" autocomplete="email">
+      <input class="auth-input" id="reg-password" type="password" placeholder="Mật khẩu (6+ ký tự)" autocomplete="new-password">
+      <button class="auth-btn" id="auth-register-btn">Đăng ký</button>
+      <div class="auth-error" id="reg-error"></div>
+      <div class="auth-toggle">Đã có tài khoản? <span id="go-login">Đăng nhập</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-screen" style="display:none">
+  <div class="loading-logo">🗺️</div>
+  <div class="loading-text" id="loading-text">Đang tải map...</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+</div>
+
+<!-- MAP NOT FOUND -->
+<div id="map-not-found">
+  <h2>❌ Map không tồn tại</h2>
+  <p>Map này không tồn tại hoặc đã bị xoá.</p>
+  <a href="home.html">← Quay về trang chủ</a>
+</div>
+
+<!-- MAIN GAME -->
+<div id="app">
+  <!-- HUD TOP -->
+  <div class="hud-top">
+    <a class="hud-back" href="home.html">← Thoát</a>
+    <div class="hud-map-name" id="hud-map-name">...</div>
+    <div class="hud-online"><div class="online-pulse"></div><span id="hud-online-count">0</span> online</div>
+    <div class="hud-coins">💰 <span id="hud-coins">0</span></div>
+  </div>
+
+  <!-- GAME WORLD -->
+  <div class="camera-wrapper">
+    <div class="camera-pan" id="camera-pan">
+      <div class="game-container" id="game-container"></div>
+    </div>
+  </div>
+
+  <!-- COORD -->
+  <div class="coord-display" id="coord-display">📍 X: -- | Y: --</div>
+
+  <!-- JOYSTICK -->
+  <div class="joystick-container" id="joystick-container">
+    <div class="joystick-base" id="joystick-base">
+      <div class="joystick-thumb" id="joystick-thumb"></div>
+    </div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div id="chat-panel" class="collapsed">
+    <div class="chat-header" id="chat-toggle">
+      <span>💬</span>
+      <div class="chat-title">CHAT</div>
+      <div class="chat-collapse-btn">▲</div>
+    </div>
+    <div class="chat-tabs">
+      <div class="chat-tab active" data-tab="world">🌍 Thế giới</div>
+      <div class="chat-tab" data-tab="map">🗺️ Map này</div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Nhắn tin..." maxlength="120" autocomplete="off">
+      <button class="chat-send-btn" id="chat-send">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
+    authDomain: "vvss-b7a49.firebaseapp.com",
+    databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "vvss-b7a49",
+    storageBucket: "vvss-b7a49.firebasestorage.app",
+    messagingSenderId: "562837285603",
+    appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<script>
+// ════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════
+function showToast(msg, type = 'info') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3100);
+}
+
+function getMapId() {
+  return new URLSearchParams(location.search).get('map');
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function randomFromArray(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function createName() {
+  const P = ["COOL","SUPER","HIP","SMUG","SWIFT","BOLD","DARK","WARM","WILD"];
+  const A = ["BEAR","DOG","CAT","FOX","LION","WOLF","HAWK","FISH","DUCK"];
+  return `${randomFromArray(P)} ${randomFromArray(A)}`;
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+const authOverlay = document.getElementById('auth-overlay');
+document.getElementById('go-register').onclick = () => {
+  document.getElementById('auth-mode-login').style.display = 'none';
+  document.getElementById('auth-mode-register').style.display = 'block';
+};
+document.getElementById('go-login').onclick = () => {
+  document.getElementById('auth-mode-login').style.display = 'block';
+  document.getElementById('auth-mode-register').style.display = 'none';
+};
+
+document.getElementById('auth-login-btn').onclick = async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-password').value;
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pw);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message;
+  }
+};
+
+document.getElementById('auth-register-btn').onclick = async () => {
+  const email = document.getElementById('reg-email').value.trim();
+  const pw = document.getElementById('reg-password').value;
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, pw);
+  } catch(e) {
+    document.getElementById('reg-error').textContent = e.message;
+  }
+};
+
+document.getElementById('auth-google-btn').onclick = async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await firebase.auth().signInWithPopup(provider);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message;
+  }
+};
+
+// ════════════════════════════════════════
+// GAME CONSTANTS
+// ════════════════════════════════════════
+const CAMERA_SCALE = 3;   // visual scale
+const TILE = 16;          // 1 grid unit in px
+const MAX_SPEED = 1.8;
+const ACCEL = 0.45;
+const FRICTION = 0.74;
+const HITBOX = 5;
+const FB_THROTTLE = 80;
+const COIN_SPAWN_INTERVAL = 8000;
+const MSG_TTL = 20000; // 20 seconds
+const BUBBLE_TTL = 5000;
+
+let MAP_DATA = null;   // loaded from Firebase
+let mapId = null;
+let currentUser = null;
+let playerData = null; // full player record from DB
+let playerId = null;
+let playerRef = null;
+
+let localX = 0, localY = 0;
+let velX = 0, velY = 0;
+let camX = 0, camY = 0;
+const keys = {};
+let joyX = 0, joyY = 0;
+let lastFirebaseSend = 0;
+let lastTime = null;
+let gameRunning = false;
+
+const players = {};
+const playerElements = {};
+const coins = {};
+const coinElements = {};
+const chatBubbles = {}; // uid → { el, timer }
+
+// ════════════════════════════════════════
+// COLLISION
+// ════════════════════════════════════════
+function isSolidGrid(gx, gy) {
+  if (!MAP_DATA) return true;
+  if (gx < 0 || gy < 0 || gx >= MAP_DATA.gridWidth || gy >= MAP_DATA.gridHeight) return true;
+  const key = `${gx}x${gy}`;
+  return !!(MAP_DATA.blockedSpaces && MAP_DATA.blockedSpaces[key]);
+}
+
+function isSolidPixel(px, py) {
+  return isSolidGrid(Math.floor(px / TILE), Math.floor(py / TILE));
+}
+
+function moveAndSlide(cx, cy, dx, dy) {
+  let nx = cx + dx, ny = cy + dy;
+  if (isSolidPixel(nx - HITBOX, cy - HITBOX) || isSolidPixel(nx + HITBOX - 1, cy - HITBOX) ||
+      isSolidPixel(nx - HITBOX, cy + HITBOX - 1) || isSolidPixel(nx + HITBOX - 1, cy + HITBOX - 1)) {
+    nx = cx;
+  }
+  if (isSolidPixel(nx - HITBOX, ny - HITBOX) || isSolidPixel(nx + HITBOX - 1, ny - HITBOX) ||
+      isSolidPixel(nx - HITBOX, ny + HITBOX - 1) || isSolidPixel(nx + HITBOX - 1, ny + HITBOX - 1)) {
+    ny = cy;
+  }
+  return { x: nx, y: ny };
+}
+
+// ════════════════════════════════════════
+// SPAWN
+// ════════════════════════════════════════
+function getSpawnPos() {
+  if (MAP_DATA.spawnPoints && MAP_DATA.spawnPoints.length > 0) {
+    const sp = randomFromArray(MAP_DATA.spawnPoints);
+    return { x: sp.x * TILE + TILE / 2, y: sp.y * TILE + TILE / 2 };
+  }
+  // fallback: find a free cell
+  for (let tries = 0; tries < 200; tries++) {
+    const gx = Math.floor(Math.random() * MAP_DATA.gridWidth);
+    const gy = Math.floor(Math.random() * MAP_DATA.gridHeight);
+    if (!isSolidGrid(gx, gy)) return { x: gx * TILE + TILE / 2, y: gy * TILE + TILE / 2 };
+  }
+  return { x: TILE, y: TILE };
+}
+
+// ════════════════════════════════════════
+// CAMERA
+// ════════════════════════════════════════
+function renderCamera() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight - 54;
+  const tx = vw / 2 - camX * CAMERA_SCALE;
+  const ty = vh / 2 - camY * CAMERA_SCALE;
+  document.getElementById('camera-pan').style.transform = `translate(${tx}px, ${ty}px)`;
+}
+
+// ════════════════════════════════════════
+// GAME LOOP
+// ════════════════════════════════════════
+function gameLoop(ts) {
+  if (!gameRunning) return;
+  if (!lastTime) lastTime = ts;
+  const dt = Math.min(ts - lastTime, 50);
+  lastTime = ts;
+
+  let inputX = 0, inputY = 0;
+  if (keys["ArrowLeft"]  || keys["KeyA"]) inputX -= 1;
+  if (keys["ArrowRight"] || keys["KeyD"]) inputX += 1;
+  if (keys["ArrowUp"]    || keys["KeyW"]) inputY -= 1;
+  if (keys["ArrowDown"]  || keys["KeyS"]) inputY += 1;
+  if (Math.abs(joyX) > 0.1 || Math.abs(joyY) > 0.1) { inputX = joyX; inputY = joyY; }
+  if (inputX !== 0 && inputY !== 0) { inputX *= 0.707; inputY *= 0.707; }
+
+  if (inputX !== 0 || inputY !== 0) {
+    velX += inputX * ACCEL;
+    velY += inputY * ACCEL;
+    const speed = Math.sqrt(velX*velX + velY*velY);
+    if (speed > MAX_SPEED) { velX = velX/speed*MAX_SPEED; velY = velY/speed*MAX_SPEED; }
+  }
+  velX *= FRICTION; velY *= FRICTION;
+  if (Math.abs(velX) < 0.01) velX = 0;
+  if (Math.abs(velY) < 0.01) velY = 0;
+
+  if ((velX !== 0 || velY !== 0) && playerId && players[playerId]) {
+    const moved = moveAndSlide(localX, localY, velX, velY);
+    localX = moved.x; localY = moved.y;
+
+    const gx = Math.floor(localX / TILE);
+    const gy = Math.floor(localY / TILE);
+    players[playerId].px = localX; players[playerId].py = localY;
+
+    // Direction
+    const dir = velX >= 0 ? 'right' : 'left';
+    players[playerId].direction = dir;
+
+    // Update element
+    const myEl = playerElements[playerId];
+    if (myEl) {
+      myEl.style.transform = `translate3d(${localX - TILE/2}px, ${localY - TILE/2 - 4}px, 0)`;
+      myEl.setAttribute('data-direction', dir);
+    }
+
+    document.getElementById('coord-display').textContent = `📍 X: ${gx} | Y: ${gy}`;
+
+    // Firebase throttle
+    if (ts - lastFirebaseSend > FB_THROTTLE) {
+      lastFirebaseSend = ts;
+      playerRef.update({ px: localX, py: localY, x: gx, y: gy, direction: dir });
+    }
+
+    // Coin pickup
+    const coinKey = `${gx}x${gy}`;
+    if (coins[coinKey]) {
+      collectCoin(coinKey);
+    }
+  }
+
+  // Camera lerp
+  camX += (localX - camX) * 0.12;
+  camY += (localY - camY) * 0.12;
+  renderCamera();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// ════════════════════════════════════════
+// COINS
+// ════════════════════════════════════════
+function spawnCoinRandom() {
+  if (!MAP_DATA) return;
+  for (let tries = 0; tries < 100; tries++) {
+    const gx = Math.floor(Math.random() * MAP_DATA.gridWidth);
+    const gy = Math.floor(Math.random() * MAP_DATA.gridHeight);
+    const key = `${gx}x${gy}`;
+    if (!isSolidGrid(gx, gy) && !coins[key]) {
+      firebase.database().ref(`mapCoins/${mapId}/${key}`).set({ x: gx, y: gy, key });
+      break;
+    }
+  }
+}
+
+function collectCoin(key) {
+  if (!coins[key]) return;
+  delete coins[key];
+  firebase.database().ref(`mapCoins/${mapId}/${key}`).remove();
+  const newCoins = (players[playerId]?.coins || 0) + 1;
+  players[playerId].coins = newCoins;
+  playerRef.update({ coins: newCoins });
+  document.getElementById('hud-coins').textContent = newCoins;
+  updatePlayerNameEl(playerId);
+}
+
+// ════════════════════════════════════════
+// PLAYER ELEMENTS
+// ════════════════════════════════════════
+function createPlayerEl(uid, p) {
+  if (playerElements[uid]) return;
+  const el = document.createElement('div');
+  el.classList.add('Character');
+  if (uid === playerId) { el.classList.add('you'); }
+  el.innerHTML = `
+    <div class="Character_shadow"></div>
+    <div class="Character_sprite"></div>
+    <div class="Character_name-container">
+      <span class="Character_name">${escapeHtml(p.name || '?')}</span>
+      <span class="Character_coins">${p.coins || 0}</span>
+    </div>
+    <div class="Character_you-arrow">▲</div>
+  `;
+  el.setAttribute('data-color', p.color || 'blue');
+  el.setAttribute('data-direction', p.direction || 'right');
+  const rpx = p.px !== undefined ? p.px - TILE/2 : (p.x || 0) * TILE;
+  const rpy = p.py !== undefined ? p.py - TILE/2 - 4 : (p.y || 0) * TILE - 4;
+  el.style.transform = `translate3d(${rpx}px, ${rpy}px, 0)`;
+  el.style.position = 'absolute'; el.style.left = '0'; el.style.top = '0';
+  playerElements[uid] = el;
+  document.getElementById('game-container').appendChild(el);
+}
+
+function updatePlayerNameEl(uid) {
+  const p = players[uid];
+  const el = playerElements[uid];
+  if (!p || !el) return;
+  const n = el.querySelector('.Character_name');
+  const c = el.querySelector('.Character_coins');
+  if (n) n.textContent = p.name || '?';
+  if (c) c.textContent = p.coins || 0;
+  el.setAttribute('data-color', p.color || 'blue');
+  el.setAttribute('data-direction', p.direction || 'right');
+  if (uid !== playerId) {
+    const rpx = p.px !== undefined ? p.px - TILE/2 : (p.x || 0) * TILE;
+    const rpy = p.py !== undefined ? p.py - TILE/2 - 4 : (p.y || 0) * TILE - 4;
+    el.style.transform = `translate3d(${rpx}px, ${rpy}px, 0)`;
+  }
+}
+
+// ════════════════════════════════════════
+// CHAT BUBBLES
+// ════════════════════════════════════════
+function showChatBubble(uid, text) {
+  const el = playerElements[uid];
+  if (!el) return;
+  // Remove existing bubble
+  if (chatBubbles[uid]) {
+    clearTimeout(chatBubbles[uid].timer);
+    chatBubbles[uid].el.remove();
+    delete chatBubbles[uid];
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+  bubble.textContent = text;
+  el.appendChild(bubble);
+  const timer = setTimeout(() => {
+    bubble.remove();
+    delete chatBubbles[uid];
+  }, BUBBLE_TTL);
+  chatBubbles[uid] = { el: bubble, timer };
+}
+
+// ════════════════════════════════════════
+// CHAT SYSTEM
+// ════════════════════════════════════════
+let chatTab = 'world';
+const chatListeners = {};
+
+function setupChat() {
+  const tabs = document.querySelectorAll('.chat-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      chatTab = tab.dataset.tab;
+      document.getElementById('chat-messages').innerHTML = '';
+      listenChat(chatTab);
+    });
+  });
+
+  document.getElementById('chat-send').addEventListener('click', sendChat);
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); sendChat(); }
+  });
+
+  document.getElementById('chat-toggle').addEventListener('click', () => {
+    const panel = document.getElementById('chat-panel');
+    panel.classList.toggle('collapsed');
+  });
+
+  listenChat('world');
+}
+
+function getChatRef(tab) {
+  if (tab === 'world') return firebase.database().ref('chat/world');
+  return firebase.database().ref(`chat/map_${mapId}`);
+}
+
+function listenChat(tab) {
+  // Detach old listener
+  if (chatListeners[tab]) {
+    getChatRef(tab).off('child_added', chatListeners[tab]);
+  }
+
+  const ref = getChatRef(tab);
+  const handler = ref.limitToLast(40).on('child_added', (snap) => {
+    const msg = snap.val();
+    if (!msg) return;
+    renderChatMsg(msg, snap.key, tab);
+  });
+  chatListeners[tab] = handler;
+
+  // Cleanup old messages
+  cleanOldMessages(tab);
+}
+
+function renderChatMsg(msg, key, tab) {
+  if (!msg || !msg.text) return;
+  const age = Date.now() - (msg.ts || 0);
+  if (age > MSG_TTL) return; // skip stale
+
+  const el = document.createElement('div');
+  el.className = 'chat-msg';
+  el.dataset.key = key;
+  const isMe = msg.uid === playerId;
+  const tagClass = tab === 'world' ? 'tag-world' : 'tag-map';
+  const tagText = tab === 'world' ? '🌍' : '🗺️';
+  el.innerHTML = `
+    <span class="chat-tag ${tagClass}">${tagText}</span>
+    <span class="chat-msg-name ${isMe ? 'you' : 'other'}">${escapeHtml(msg.name || '?')}:</span>
+    <span class="chat-msg-text">${escapeHtml(msg.text)}</span>
+  `;
+  const container = document.getElementById('chat-messages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+
+  // Show bubble above head
+  if (msg.uid && playerElements[msg.uid]) {
+    showChatBubble(msg.uid, msg.text);
+  }
+
+  // Auto-remove after TTL
+  const remaining = MSG_TTL - (Date.now() - (msg.ts || 0));
+  if (remaining > 0) {
+    setTimeout(() => {
+      el.remove();
+      // Also delete from Firebase
+      getChatRef(tab).child(key).remove();
+    }, remaining);
+  } else {
+    el.remove();
+    getChatRef(tab).child(key).remove();
+  }
+}
+
+function cleanOldMessages(tab) {
+  const cutoff = Date.now() - MSG_TTL;
+  getChatRef(tab).orderByChild('ts').endAt(cutoff).once('value', snap => {
+    snap.forEach(child => child.ref.remove());
+  });
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !currentUser) return;
+  input.value = '';
+
+  const msg = {
+    uid: playerId,
+    name: players[playerId]?.name || currentUser.email || 'Ẩn danh',
+    text,
+    ts: Date.now()
+  };
+  getChatRef(chatTab).push(msg);
+
+  // Open chat if collapsed
+  document.getElementById('chat-panel').classList.remove('collapsed');
+}
+
+// ════════════════════════════════════════
+// MAP BACKGROUND
+// ════════════════════════════════════════
+function setupMapBackground() {
+  const container = document.getElementById('game-container');
+  const w = MAP_DATA.gridWidth * TILE;
+  const h = MAP_DATA.gridHeight * TILE;
+  container.style.width = w + 'px';
+  container.style.height = h + 'px';
+  container.style.transform = `scale(${CAMERA_SCALE})`;
+  container.style.transformOrigin = 'top left';
+
+  if (MAP_DATA.imageUrl) {
+    container.style.backgroundImage = `url(${MAP_DATA.imageUrl})`;
+    container.style.backgroundSize = '100% 100%';
+    container.style.backgroundRepeat = 'no-repeat';
+    container.style.imageRendering = 'pixelated';
+  } else {
+    // Fallback checkerboard
+    container.style.background = 'repeating-conic-gradient(#2a3a2a 0% 25%, #1e2e1e 0% 50%) 0 0 / 16px 16px';
+  }
+}
+
+// ════════════════════════════════════════
+// ONLINE COUNT
+// ════════════════════════════════════════
+function trackOnline() {
+  firebase.database().ref(`mapPlayers/${mapId}`).on('value', snap => {
+    const count = snap.numChildren();
+    document.getElementById('hud-online-count').textContent = count;
+    firebase.database().ref(`maps/${mapId}/onlineCount`).set(count);
+  });
+}
+
+// ════════════════════════════════════════
+// JOYSTICK
+// ════════════════════════════════════════
+function setupJoystick() {
+  const base = document.getElementById('joystick-base');
+  const thumb = document.getElementById('joystick-thumb');
+  if (!base || !thumb) return;
+
+  let active = false, cx = 0, cy = 0;
+  const MAX = 38;
+
+  function handleMove(clientX, clientY) {
+    let dx = clientX - cx, dy = clientY - cy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > MAX) { dx = dx/dist*MAX; dy = dy/dist*MAX; }
+    thumb.style.transform = `translate(${dx}px, ${dy}px)`;
+    joyX = Math.abs(dx/MAX) < 0.1 ? 0 : dx/MAX;
+    joyY = Math.abs(dy/MAX) < 0.1 ? 0 : dy/MAX;
+  }
+
+  base.addEventListener('touchstart', (e) => {
+    e.preventDefault(); active = true;
+    const r = base.getBoundingClientRect();
+    cx = r.left + r.width/2; cy = r.top + r.height/2;
+    handleMove(e.touches[0].clientX, e.touches[0].clientY);
+  });
+  base.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (active) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+  });
+  base.addEventListener('touchend', (e) => {
+    e.preventDefault(); active = false;
+    thumb.style.transform = 'translate(0,0)'; joyX = 0; joyY = 0;
+  });
+
+  // Mouse fallback
+  base.addEventListener('mousedown', (e) => {
+    e.preventDefault(); active = true;
+    const r = base.getBoundingClientRect();
+    cx = r.left + r.width/2; cy = r.top + r.height/2;
+    handleMove(e.clientX, e.clientY);
+  });
+  window.addEventListener('mousemove', (e) => { if (active) handleMove(e.clientX, e.clientY); });
+  window.addEventListener('mouseup', () => {
+    if (active) { active = false; thumb.style.transform = 'translate(0,0)'; joyX = 0; joyY = 0; }
+  });
+}
+
+// ════════════════════════════════════════
+// FIREBASE LISTENERS
+// ════════════════════════════════════════
+function startFirebaseListeners() {
+  const mapPlayersRef = firebase.database().ref(`mapPlayers/${mapId}`);
+  const mapCoinsRef = firebase.database().ref(`mapCoins/${mapId}`);
+
+  // Players in this map
+  mapPlayersRef.on('value', snap => {
+    const all = snap.val() || {};
+    Object.entries(all).forEach(([uid, p]) => {
+      if (!players[uid]) players[uid] = {};
+      Object.assign(players[uid], p);
+      if (uid !== playerId) updatePlayerNameEl(uid);
+    });
+  });
+
+  mapPlayersRef.on('child_added', snap => {
+    const p = snap.val();
+    if (!p) return;
+    const uid = snap.key;
+    players[uid] = p;
+    createPlayerEl(uid, p);
+  });
+
+  mapPlayersRef.on('child_changed', snap => {
+    const p = snap.val();
+    if (!p) return;
+    const uid = snap.key;
+    if (uid === playerId) return;
+    players[uid] = p;
+    if (!playerElements[uid]) createPlayerEl(uid, p);
+    else updatePlayerNameEl(uid);
+  });
+
+  mapPlayersRef.on('child_removed', snap => {
+    const uid = snap.key;
+    if (playerElements[uid]) {
+      playerElements[uid].remove();
+      delete playerElements[uid];
+    }
+    delete players[uid];
+    if (chatBubbles[uid]) { clearTimeout(chatBubbles[uid].timer); chatBubbles[uid].el.remove(); delete chatBubbles[uid]; }
+  });
+
+  // Coins
+  mapCoinsRef.on('child_added', snap => {
+    const coin = snap.val();
+    if (!coin) return;
+    const key = `${coin.x}x${coin.y}`;
+    coins[key] = true;
+    const el = document.createElement('div');
+    el.className = 'Coin';
+    el.style.position = 'absolute'; el.style.left = '0'; el.style.top = '0';
+    el.innerHTML = `<div class="Coin_shadow" style="position:absolute;width:16px;height:16px;top:0;left:0"></div><div class="Coin_sprite" style="position:absolute;width:16px;height:16px;top:-4px;left:0"></div>`;
+    el.style.transform = `translate3d(${coin.x * TILE}px, ${coin.y * TILE - 4}px, 0)`;
+    coinElements[key] = el;
+    document.getElementById('game-container').appendChild(el);
+  });
+
+  mapCoinsRef.on('child_removed', snap => {
+    const coin = snap.val();
+    if (!coin) return;
+    const key = `${coin.x}x${coin.y}`;
+    delete coins[key];
+    if (coinElements[key]) { coinElements[key].remove(); delete coinElements[key]; }
+  });
+
+  // Listen to own player data (coins, skin changes from home page)
+  playerRef = firebase.database().ref(`players/${playerId}`);
+  playerRef.on('value', snap => {
+    playerData = snap.val();
+    if (!playerData) return;
+    const c = playerData.coins || 0;
+    document.getElementById('hud-coins').textContent = c;
+    if (players[playerId]) {
+      players[playerId].coins = c;
+      players[playerId].color = playerData.color || 'blue';
+      players[playerId].name = playerData.name || players[playerId].name;
+      updatePlayerNameEl(playerId);
+    }
+  });
+}
+
+// ════════════════════════════════════════
+// INIT GAME
+// ════════════════════════════════════════
+async function initGame(user) {
+  currentUser = user;
+  playerId = user.uid;
+  mapId = getMapId();
+
+  if (!mapId) {
+    document.getElementById('map-not-found').style.display = 'flex';
+    document.getElementById('loading-screen').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('loading-screen').style.display = 'flex';
+  document.getElementById('loading-text').textContent = 'Đang tải map...';
+
+  // Load map data
+  const mapSnap = await firebase.database().ref(`maps/${mapId}`).once('value');
+  MAP_DATA = mapSnap.val();
+
+  if (!MAP_DATA) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('map-not-found').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('hud-map-name').textContent = MAP_DATA.name || 'Map';
+  document.getElementById('loading-text').textContent = 'Đang khởi tạo...';
+
+  // Load player data
+  const playerSnap = await firebase.database().ref(`players/${playerId}`).once('value');
+  playerData = playerSnap.val();
+
+  // Setup world
+  setupMapBackground();
+  setupJoystick();
+
+  // Spawn
+  const spawn = getSpawnPos();
+  localX = spawn.x; localY = spawn.y;
+  camX = localX; camY = localY;
+
+  const name = playerData?.name || createName();
+  const color = playerData?.color || 'blue';
+  const coins_val = playerData?.coins || 0;
+
+  const myPlayerData = {
+    uid: playerId,
+    name, color,
+    x: Math.floor(localX / TILE),
+    y: Math.floor(localY / TILE),
+    px: localX, py: localY,
+    direction: 'right',
+    coins: coins_val,
+    mapId
+  };
+
+  players[playerId] = myPlayerData;
+
+  // Write to mapPlayers (for this map session)
+  const mapPlayerRef = firebase.database().ref(`mapPlayers/${mapId}/${playerId}`);
+  await mapPlayerRef.set(myPlayerData);
+  mapPlayerRef.onDisconnect().remove();
+
+  // Create own element
+  createPlayerEl(playerId, myPlayerData);
+
+  // Update HUD
+  document.getElementById('hud-coins').textContent = coins_val;
+
+  // Start listeners
+  startFirebaseListeners();
+  trackOnline();
+  setupChat();
+
+  // Coin spawner (only spawn if very few coins exist)
+  setInterval(() => {
+    firebase.database().ref(`mapCoins/${mapId}`).once('value', snap => {
+      if (snap.numChildren() < 5) spawnCoinRandom();
+    });
+  }, COIN_SPAWN_INTERVAL);
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    // Prevent page scroll
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+  });
+  document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+  window.addEventListener('resize', renderCamera);
+
+  // Show app
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Start game loop
+  gameRunning = true;
+  renderCamera();
+  requestAnimationFrame(gameLoop);
+
+  // Increment play count
+  firebase.database().ref(`maps/${mapId}/playCount`).transaction(v => (v || 0) + 1);
+
+  // Cleanup old chat on load
+  setTimeout(() => {
+    cleanOldMessages('world');
+    cleanOldMessages('map');
+  }, 2000);
+
+  // Periodic chat cleanup every 20s
+  setInterval(() => {
+    cleanOldMessages('world');
+    cleanOldMessages(`map_${mapId}`);
+  }, MSG_TTL);
+}
+
+// ════════════════════════════════════════
+// AUTH STATE
+// ════════════════════════════════════════
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    authOverlay.style.display = 'none';
+    initGame(user);
+  } else {
+    authOverlay.style.display = 'flex';
+    document.getElementById('loading-screen').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
