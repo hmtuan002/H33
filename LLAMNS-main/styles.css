@@ -97,7 +97,6 @@ html, body {
 
 .Character {
   position: absolute;
-  transition: transform 0.15s ease-out;
 }
 
 .Character.you {
