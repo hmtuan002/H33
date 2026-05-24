@@ -32,9 +32,9 @@ const CAMERA_SCALE = 4;
 const TILE = 16;
 
 // Movement tuning
-const SPEED      = 0.08;  // pixels per ms at full input
-const FRICTION   = 0.80;  // velocity multiplier per frame (lower = stops faster)
-const CAMERA_LERP = 0.12; // camera smoothing (0=no move, 1=instant)
+const SPEED       = 0.06;  // pixels per ms at full input
+const FRICTION    = 0.75;  // velocity multiplier per frame
+const CAMERA_LERP = 1.0;   // 1.0 = instant follow (no lag, no jitter)
 
 // Collision: treat each grid cell as a 16×16 box.
 // Player hitbox is 8×8 centered in the tile.
@@ -150,9 +150,8 @@ function getPurchasedSkinsFromFirebase(skins) { return skins || { blue: true }; 
   function renderCamera() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    // Target: keep player center in viewport center
-    const tx = Math.round(vw / 2 - camX * CAMERA_SCALE);
-    const ty = Math.round(vh / 2 - camY * CAMERA_SCALE);
+    const tx = vw / 2 - camX * CAMERA_SCALE;
+    const ty = vh / 2 - camY * CAMERA_SCALE;
     cameraPan.style.transform = `translate(${tx}px, ${ty}px)`;
   }
 
