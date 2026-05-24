@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameVerse — Tạo Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #FFD700; --gold-dark: #cc9f00;
+      --bg: #0d0f1a; --bg2: #161928; --bg3: #1e2338;
+      --accent: #7c6ef5; --accent2: #5be3c0;
+      --text: #f0f2ff; --text-muted: #8a90b8;
+      --border: rgba(255,255,255,0.08);
+      --danger: #e24b4a; --success: #3fb950;
+      --wall-color: rgba(220, 80, 80, 0.75);
+      --wall-border: rgba(255, 100, 100, 0.9);
+      --grid-line: rgba(255,255,255,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: 'Nunito', sans-serif;
+      background: var(--bg); color: var(--text); overflow: hidden;
+    }
+
+    /* ── AUTH OVERLAY ── */
+    #auth-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg); display: flex; align-items: center; justify-content: center;
+    }
+    .auth-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 36px; width: 360px; text-align: center;
+    }
+    .auth-box h1 { font-size: 22px; font-weight: 900; color: var(--gold); letter-spacing: 2px; margin-bottom: 6px; }
+    .auth-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    .auth-input {
+      width: 100%; padding: 12px 16px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 15px; margin-bottom: 12px; outline: none; transition: border 0.2s;
+    }
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-btn {
+      width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent), #5b52d9);
+      border: none; border-radius: 10px; color: #fff;
+      font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s; margin-bottom: 10px;
+    }
+    .auth-btn:hover { opacity: 0.9; }
+    .auth-btn.google { background: linear-gradient(135deg, #ea4335, #cc2c20); margin-top: 4px; }
+    .auth-divider {
+      color: var(--text-muted); font-size: 13px; margin: 10px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .auth-error { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 20px; }
+
+    /* ── LAYOUT ── */
+    #app { display: none; height: 100vh; display: none; flex-direction: column; }
+
+    /* NAVBAR */
+    .navbar {
+      flex-shrink: 0; height: 54px;
+      background: rgba(13,15,26,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 50;
+    }
+    .nav-logo { font-size: 17px; font-weight: 900; color: var(--gold); font-family: 'Space Mono', monospace; }
+    .nav-center { display: flex; gap: 0; background: var(--bg3); border-radius: 10px; padding: 3px; }
+    .step-tab {
+      padding: 6px 20px; border-radius: 7px; font-size: 13px; font-weight: 800;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+      border: none; background: transparent; font-family: 'Nunito', sans-serif;
+    }
+    .step-tab.active { background: var(--accent); color: #fff; }
+    .step-tab.done { color: var(--success); }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+    .nav-back-btn {
+      padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.2s;
+    }
+    .nav-back-btn:hover { border-color: var(--accent); color: var(--text); }
+    .publish-btn {
+      padding: 7px 22px; border-radius: 8px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #1a1200; font-size: 14px; font-weight: 900;
+      cursor: pointer; font-family: 'Nunito', sans-serif; transition: opacity 0.2s;
+      display: none;
+    }
+    .publish-btn:hover { opacity: 0.85; }
+    .publish-btn.visible { display: block; }
+
+    /* ── BODY SPLIT ── */
+    .editor-body {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      background: var(--bg2); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+    }
+    .sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-section h4 {
+      font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+      color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;
+    }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+    .form-input {
+      width: 100%; padding: 9px 12px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 13px; outline: none; transition: border 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input + .form-input, .form-label + .form-label { margin-top: 10px; }
+    .form-row { display: flex; gap: 8px; }
+    .form-row .form-input { flex: 1; }
+    .sidebar-btn {
+      width: 100%; padding: 10px; border-radius: 8px; border: none;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; margin-top: 10px;
+    }
+    .sidebar-btn.primary { background: var(--accent); color: #fff; }
+    .sidebar-btn.primary:hover { opacity: 0.85; }
+    .sidebar-btn.danger { background: rgba(226,75,74,0.15); color: var(--danger); border: 1px solid rgba(226,75,74,0.3); }
+    .sidebar-btn.danger:hover { background: rgba(226,75,74,0.25); }
+    .sidebar-btn.secondary { background: var(--bg3); color: var(--text-muted); border: 1px solid var(--border); }
+    .sidebar-btn.secondary:hover { color: var(--text); border-color: var(--accent); }
+
+    /* tile size slider */
+    .tile-slider { width: 100%; accent-color: var(--accent); margin: 8px 0; }
+    .tile-slider-row { display: flex; align-items: center; gap: 10px; }
+    .tile-slider-val {
+      font-family: 'Space Mono', monospace; font-size: 14px;
+      font-weight: 700; color: var(--gold); min-width: 40px; text-align: right;
+    }
+
+    /* tool selector */
+    .tool-row { display: flex; gap: 6px; }
+    .tool-btn {
+      flex: 1; padding: 9px 6px; border-radius: 8px;
+      border: 2px solid var(--border); background: var(--bg3);
+      color: var(--text-muted); font-size: 18px; cursor: pointer;
+      transition: all 0.2s; text-align: center; line-height: 1;
+    }
+    .tool-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,110,245,0.1); }
+    .tool-btn.erase.active { border-color: var(--danger); color: var(--danger); background: rgba(226,75,74,0.1); }
+    .tool-label { font-size: 10px; font-weight: 700; display: block; margin-top: 3px; color: inherit; }
+
+    /* info panel */
+    .info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; padding: 4px 0;
+    }
+    .info-key { color: var(--text-muted); }
+    .info-val { font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent2); }
+
+    /* spawn point indicator */
+    .spawn-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .spawn-dot { width: 12px; height: 12px; border-radius: 50%; background: #5be3c0; flex-shrink: 0; }
+    .wall-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .wall-dot { width: 12px; height: 12px; border-radius: 3px; background: var(--wall-color); border: 1px solid var(--wall-border); flex-shrink: 0; }
+
+    /* ── CANVAS AREA ── */
+    .canvas-area {
+      flex: 1; position: relative; overflow: hidden;
+      background: repeating-conic-gradient(#1a1d2e 0% 25%, #141624 0% 50%) 0 0 / 20px 20px;
+    }
+    #canvas-viewport {
+      position: absolute; transform-origin: top left;
+      cursor: crosshair;
+    }
+    /* The layered canvas approach */
+    #canvas-viewport canvas { position: absolute; top: 0; left: 0; }
+    #canvas-map { z-index: 1; }   /* map image */
+    #canvas-grid { z-index: 2; }  /* grid lines */
+    #canvas-walls { z-index: 3; } /* walls */
+    #canvas-overlay { z-index: 4; cursor: crosshair; } /* interaction */
+
+    /* ── STEP 1 PANEL (center) ── */
+    #step1-panel {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .setup-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px; width: 480px; max-width: 95vw;
+    }
+    .setup-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .setup-card h2 span { color: var(--gold); }
+    .setup-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .setup-preview {
+      width: 100%; height: 180px; border-radius: 12px;
+      background: var(--bg3); border: 2px dashed rgba(124,110,245,0.3);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; margin-bottom: 20px; position: relative;
+    }
+    .setup-preview img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      display: none; image-rendering: pixelated;
+    }
+    .setup-preview-placeholder { font-size: 36px; color: var(--text-muted); }
+    .setup-img-info {
+      position: absolute; bottom: 8px; right: 10px;
+      background: rgba(0,0,0,0.7); border-radius: 6px; padding: 3px 8px;
+      font-size: 11px; font-family: 'Space Mono', monospace; color: var(--accent2);
+      display: none;
+    }
+    .setup-load-btn {
+      width: 100%; padding: 10px; border-radius: 8px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text-muted); font-family: 'Nunito', sans-serif;
+      font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 14px;
+      transition: all 0.2s;
+    }
+    .setup-load-btn:hover { border-color: var(--accent); color: var(--text); }
+    .tile-setup-section { margin-bottom: 16px; }
+    .tile-size-visual {
+      width: 100%; height: 50px; border-radius: 8px;
+      background: var(--bg3); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+      position: relative; overflow: hidden;
+    }
+    #tile-vis-canvas { display: block; }
+    .next-btn {
+      width: 100%; padding: 14px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #5b52d9);
+      border: none; color: #fff; font-family: 'Nunito', sans-serif;
+      font-size: 16px; font-weight: 900; cursor: pointer; transition: opacity 0.2s;
+    }
+    .next-btn:hover { opacity: 0.9; }
+    .next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 22px; font-size: 14px; font-weight: 700;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error { border-color: var(--danger); color: var(--danger); }
+    #toast.info { border-color: var(--accent); color: var(--accent); }
+
+    /* ── PUBLISH MODAL ── */
+    #publish-modal {
+      display: none; position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    #publish-modal.open { display: flex; }
+    .publish-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; width: 400px; max-width: 95vw;
+    }
+    .publish-card h2 { font-size: 20px; font-weight: 900; margin-bottom: 6px; color: var(--gold); }
+    .publish-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .publish-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .pub-cancel { flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .pub-confirm { flex: 2; padding: 11px; border-radius: 8px; border: none; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: opacity 0.2s; }
+    .pub-confirm:hover { opacity: 0.85; }
+
+    /* zoom hint */
+    .zoom-hint {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(13,15,26,0.85); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px; font-size: 11px; color: var(--text-muted);
+      pointer-events: none;
+    }
+    .zoom-val { font-family: 'Space Mono', monospace; color: var(--accent2); }
+
+    /* grid-size warning */
+    .grid-warning { font-size: 12px; color: var(--gold); margin-top: 6px; display: none; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div style="font-size:48px;margin-bottom:8px">🎮</div>
+    <h1>GAMEVERSE</h1>
+    <p>Đăng nhập để tạo map</p>
+    <input class="auth-input" id="auth-email" type="email" placeholder="Email">
+    <input class="auth-input" id="auth-password" type="password" placeholder="Mật khẩu">
+    <button class="auth-btn" id="auth-action-btn">Đăng nhập</button>
+    <div class="auth-divider">hoặc</div>
+    <button class="auth-btn google" id="google-btn">🔵 Tiếp tục với Google</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">✏️ TẠO MAP</div>
+    <div class="nav-center">
+      <button class="step-tab active" id="tab-step1">① Thiết lập</button>
+      <button class="step-tab" id="tab-step2" disabled>② Vẽ Map</button>
+    </div>
+    <div class="nav-right">
+      <button class="nav-back-btn" onclick="window.location.href='home.html'">← Trang chủ</button>
+      <button class="publish-btn" id="publish-btn">🚀 Đăng Map</button>
+    </div>
+  </nav>
+
+  <!-- BODY -->
+  <div class="editor-body">
+
+    <!-- SIDEBAR (hidden in step1) -->
+    <div class="sidebar" id="sidebar" style="display:none">
+
+      <div class="sidebar-section">
+        <h4>🔧 Công cụ</h4>
+        <div class="tool-row">
+          <button class="tool-btn active" id="tool-wall" title="Vẽ tường">
+            🧱<span class="tool-label">Tường</span>
+          </button>
+          <button class="tool-btn erase" id="tool-erase" title="Xóa tường">
+            🧹<span class="tool-label">Xóa</span>
+          </button>
+          <button class="tool-btn" id="tool-spawn" title="Đặt điểm spawn">
+            🟢<span class="tool-label">Spawn</span>
+          </button>
+        </div>
+        <div class="wall-legend"><div class="wall-dot"></div>Ô tường (không thể đi qua)</div>
+        <div class="spawn-legend"><div class="spawn-dot"></div>Điểm xuất hiện của người chơi</div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>🔍 Màn hình</h4>
+        <div class="info-row">
+          <span class="info-key">Zoom</span>
+          <span class="info-val" id="info-zoom">100%</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Con trỏ</span>
+          <span class="info-val" id="info-cursor">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Tường đã vẽ</span>
+          <span class="info-val" id="info-walls">0</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Điểm spawn</span>
+          <span class="info-val" id="info-spawns">0</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="sidebar-btn secondary" style="margin-top:0;flex:1;padding:8px" id="zoom-in-btn">＋</button>
+          <button class="sidebar-btn secondary" style="margin-top:0;flex:1;padding:8px" id="zoom-out-btn">－</button>
+          <button class="sidebar-btn secondary" style="margin-top:0;flex:1;padding:8px" id="zoom-reset-btn">⌂</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>📐 Thông tin Map</h4>
+        <div class="info-row"><span class="info-key">Kích thước ảnh</span><span class="info-val" id="info-imgsize">—</span></div>
+        <div class="info-row"><span class="info-key">Kích thước ô</span><span class="info-val" id="info-tilesize">—</span></div>
+        <div class="info-row"><span class="info-key">Lưới (đơn vị)</span><span class="info-val" id="info-grid">—</span></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>🗑️ Xóa</h4>
+        <button class="sidebar-btn danger" id="clear-walls-btn">Xóa toàn bộ tường</button>
+        <button class="sidebar-btn danger" style="margin-top:8px" id="clear-spawns-btn">Xóa điểm spawn</button>
+      </div>
+
+    </div>
+
+    <!-- CANVAS AREA -->
+    <div class="canvas-area" id="canvas-area">
+
+      <!-- STEP 1: setup panel (shown until confirmed) -->
+      <div id="step1-panel">
+        <div class="setup-card">
+          <h2>① Thiết lập <span>Map</span></h2>
+          <p>Nhập link ảnh bản đồ, chọn kích thước 1 ô lưới, sau đó bắt đầu vẽ tường.</p>
+
+          <div class="setup-preview" id="setup-preview">
+            <div class="setup-preview-placeholder" id="preview-placeholder">🖼️</div>
+            <img id="preview-img" alt="preview">
+            <div class="setup-img-info" id="img-info-badge"></div>
+          </div>
+
+          <label class="form-label">🔗 Link ảnh bản đồ (URL công khai)</label>
+          <input class="form-input" id="img-url-input" type="url" placeholder="https://example.com/map.png" style="margin-bottom:10px">
+          <button class="setup-load-btn" id="load-img-btn">📥 Tải ảnh</button>
+
+          <div class="tile-setup-section">
+            <label class="form-label">📏 Kích thước 1 ô lưới (pixel)</label>
+            <div class="tile-size-visual">
+              <canvas id="tile-vis-canvas" width="440" height="48"></canvas>
+            </div>
+            <div class="tile-slider-row">
+              <input type="range" class="tile-slider" id="tile-slider" min="4" max="128" value="16" step="1">
+              <span class="tile-slider-val"><span id="tile-val">16</span>px</span>
+            </div>
+            <div class="info-row" style="margin-top:6px">
+              <span class="info-key">→ Lưới sẽ là</span>
+              <span class="info-val" id="grid-calc">? × ? ô</span>
+            </div>
+            <div class="grid-warning" id="grid-warning">⚠️ Lưới quá lớn, có thể chậm</div>
+          </div>
+
+          <label class="form-label" style="margin-bottom:6px">🏷️ Tên map</label>
+          <input class="form-input" id="map-name-input" type="text" maxlength="30" placeholder="Tên map của bạn..." style="margin-bottom:16px">
+
+          <button class="next-btn" id="next-btn" disabled>➡️ Tiếp theo — Vẽ tường</button>
+        </div>
+      </div>
+
+      <!-- CANVAS LAYERS (hidden in step1) -->
+      <div id="canvas-viewport">
+        <canvas id="canvas-map"></canvas>
+        <canvas id="canvas-grid"></canvas>
+        <canvas id="canvas-walls"></canvas>
+        <canvas id="canvas-overlay"></canvas>
+      </div>
+
+      <div class="zoom-hint" id="zoom-hint" style="display:none">
+        Zoom: <span class="zoom-val" id="zoom-display">100%</span> &nbsp;|&nbsp; Scroll để zoom &nbsp;|&nbsp; Chuột giữa để kéo
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PUBLISH MODAL -->
+<div id="publish-modal">
+  <div class="publish-card">
+    <h2>🚀 Đăng Map Lên Hệ Thống</h2>
+    <p>Map của bạn sẽ xuất hiện ở trang chủ để mọi người có thể vào chơi.</p>
+    <label class="form-label">🏷️ Tên map</label>
+    <input class="form-input" id="pub-map-name" style="margin-bottom:12px">
+    <div class="info-row"><span class="info-key">Kích thước lưới</span><span class="info-val" id="pub-grid-info">—</span></div>
+    <div class="info-row" style="margin-top:4px"><span class="info-key">Số ô tường</span><span class="info-val" id="pub-wall-count">0</span></div>
+    <div class="info-row" style="margin-top:4px"><span class="info-key">Điểm spawn</span><span class="info-val" id="pub-spawn-count">0</span></div>
+    <div class="publish-actions">
+      <button class="pub-cancel" id="pub-cancel">Hủy</button>
+      <button class="pub-confirm" id="pub-confirm">✅ Đăng ngay</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
+  authDomain: "vvss-b7a49.firebaseapp.com",
+  databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "vvss-b7a49",
+  storageBucket: "vvss-b7a49.firebasestorage.app",
+  messagingSenderId: "562837285603",
+  appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
+
+<script>
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let currentUser = null;
+let playerData = null;
+
+// Map config
+let mapImageUrl = '';
+let mapImageWidth = 0;
+let mapImageHeight = 0;
+let tileSize = 16;
+let gridW = 0, gridH = 0;
+let mapName = '';
+
+// Editor state
+let currentStep = 1;
+let currentTool = 'wall';   // 'wall' | 'erase' | 'spawn'
+let walls = {};              // "x,y" -> true
+let spawnPoints = [];        // [{x,y}, ...]
+
+// Canvas + zoom/pan
+let zoom = 1;
+let panX = 0, panY = 0;
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let isDrawing = false;
+let lastDrawCell = null;
+
+// Cached image element
+let mapImg = null;
+
+// Canvas elements
+let cMap, cGrid, cWalls, cOverlay;
+let ctxMap, ctxGrid, ctxWalls, ctxOver;
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ──────────────────────────────────────────────
+// AUTH
+// ──────────────────────────────────────────────
+document.getElementById('auth-action-btn').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'Nhập email và mật khẩu.'; return; }
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    try {
+      await firebase.auth().createUserWithEmailAndPassword(email, pass);
+    } catch(e2) {
+      errEl.textContent = e2.message;
+    }
+  }
+});
+document.getElementById('google-btn').addEventListener('click', async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try { await firebase.auth().signInWithPopup(provider); }
+  catch(e) { document.getElementById('auth-error').textContent = e.message; }
+});
+
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    // load player data for name
+    const snap = await firebase.database().ref(`players/${user.uid}`).once('value');
+    playerData = snap.val();
+  } else {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+// ──────────────────────────────────────────────
+// STEP 1 — SETUP
+// ──────────────────────────────────────────────
+const imgUrlInput   = document.getElementById('img-url-input');
+const loadImgBtn    = document.getElementById('load-img-btn');
+const previewImg    = document.getElementById('preview-img');
+const previewHolder = document.getElementById('preview-placeholder');
+const imgInfoBadge  = document.getElementById('img-info-badge');
+const tileSlider    = document.getElementById('tile-slider');
+const tileValEl     = document.getElementById('tile-val');
+const gridCalcEl    = document.getElementById('grid-calc');
+const gridWarning   = document.getElementById('grid-warning');
+const nextBtn       = document.getElementById('next-btn');
+const mapNameInput  = document.getElementById('map-name-input');
+const tileVisCanvas = document.getElementById('tile-vis-canvas');
+const tileVisCtx    = tileVisCanvas.getContext('2d');
+
+function updateTileVis() {
+  const ts = parseInt(tileSlider.value);
+  const w = tileVisCanvas.width, h = tileVisCanvas.height;
+  tileVisCtx.clearRect(0, 0, w, h);
+
+  // draw repeating tile grid to visualize size
+  tileVisCtx.fillStyle = '#1e2338';
+  tileVisCtx.fillRect(0, 0, w, h);
+
+  const cols = Math.ceil(w / ts) + 1;
+  const rows = Math.ceil(h / ts) + 1;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const shade = (r + c) % 2 === 0 ? 'rgba(124,110,245,0.12)' : 'rgba(255,255,255,0.04)';
+      tileVisCtx.fillStyle = shade;
+      tileVisCtx.fillRect(c * ts, r * ts, ts, ts);
+    }
+  }
+  // border lines
+  tileVisCtx.strokeStyle = 'rgba(124,110,245,0.35)';
+  tileVisCtx.lineWidth = 0.5;
+  for (let c = 0; c <= cols; c++) {
+    tileVisCtx.beginPath(); tileVisCtx.moveTo(c * ts, 0); tileVisCtx.lineTo(c * ts, h); tileVisCtx.stroke();
+  }
+  for (let r = 0; r <= rows; r++) {
+    tileVisCtx.beginPath(); tileVisCtx.moveTo(0, r * ts); tileVisCtx.lineTo(w, r * ts); tileVisCtx.stroke();
+  }
+
+  // label first tile
+  tileVisCtx.fillStyle = 'rgba(255,215,0,0.9)';
+  tileVisCtx.font = `bold ${Math.min(ts * 0.5, 14)}px Space Mono, monospace`;
+  tileVisCtx.textAlign = 'center'; tileVisCtx.textBaseline = 'middle';
+  if (ts >= 10) tileVisCtx.fillText(`${ts}px`, ts / 2, h / 2);
+}
+
+function updateGridCalc() {
+  const ts = parseInt(tileSlider.value);
+  tileSize = ts;
+  tileValEl.textContent = ts;
+  updateTileVis();
+  if (mapImageWidth > 0) {
+    gridW = Math.floor(mapImageWidth / ts);
+    gridH = Math.floor(mapImageHeight / ts);
+    gridCalcEl.textContent = `${gridW} × ${gridH} ô`;
+    const total = gridW * gridH;
+    gridWarning.style.display = total > 10000 ? 'block' : 'none';
+    checkCanProceed();
+  } else {
+    gridCalcEl.textContent = '? × ? ô';
+  }
+}
+
+function checkCanProceed() {
+  const hasImg = mapImageWidth > 0;
+  const hasName = mapNameInput.value.trim().length > 0;
+  nextBtn.disabled = !(hasImg && hasName);
+}
+
+tileSlider.addEventListener('input', updateGridCalc);
+mapNameInput.addEventListener('input', checkCanProceed);
+updateTileVis();
+
+loadImgBtn.addEventListener('click', () => {
+  const url = imgUrlInput.value.trim();
+  if (!url) { showToast('Nhập URL ảnh trước!', 'error'); return; }
+  loadImgBtn.textContent = '⏳ Đang tải...';
+  loadImgBtn.disabled = true;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    mapImageUrl = url;
+    mapImageWidth = img.naturalWidth;
+    mapImageHeight = img.naturalHeight;
+    mapImg = img;
+
+    previewImg.src = url;
+    previewImg.style.display = 'block';
+    previewHolder.style.display = 'none';
+    imgInfoBadge.textContent = `${mapImageWidth} × ${mapImageHeight} px`;
+    imgInfoBadge.style.display = 'block';
+
+    loadImgBtn.textContent = '✅ Đã tải';
+    loadImgBtn.disabled = false;
+    updateGridCalc();
+    showToast('Ảnh đã tải thành công!', 'success');
+  };
+  img.onerror = () => {
+    loadImgBtn.textContent = '📥 Tải ảnh';
+    loadImgBtn.disabled = false;
+    showToast('Không thể tải ảnh. Kiểm tra URL hoặc CORS!', 'error');
+  };
+  img.src = url;
+});
+
+nextBtn.addEventListener('click', () => {
+  mapName = mapNameInput.value.trim();
+  tileSize = parseInt(tileSlider.value);
+  gridW = Math.floor(mapImageWidth / tileSize);
+  gridH = Math.floor(mapImageHeight / tileSize);
+  enterStep2();
+});
+
+// ──────────────────────────────────────────────
+// STEP 2 — EDITOR
+// ──────────────────────────────────────────────
+function enterStep2() {
+  currentStep = 2;
+
+  // Switch UI
+  document.getElementById('step1-panel').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('canvas-viewport').style.display = 'block';
+  document.getElementById('zoom-hint').style.display = 'block';
+  document.getElementById('publish-btn').classList.add('visible');
+
+  document.getElementById('tab-step1').classList.remove('active');
+  document.getElementById('tab-step1').classList.add('done');
+  document.getElementById('tab-step2').classList.add('active');
+  document.getElementById('tab-step2').disabled = false;
+
+  // Update sidebar info
+  document.getElementById('info-imgsize').textContent = `${mapImageWidth}×${mapImageHeight}`;
+  document.getElementById('info-tilesize').textContent = `${tileSize}px`;
+  document.getElementById('info-grid').textContent = `${gridW}×${gridH}`;
+
+  // Init canvases
+  initCanvases();
+  // Fit map to view initially
+  fitToView();
+  redrawAll();
+}
+
+function initCanvases() {
+  cMap     = document.getElementById('canvas-map');
+  cGrid    = document.getElementById('canvas-grid');
+  cWalls   = document.getElementById('canvas-walls');
+  cOverlay = document.getElementById('canvas-overlay');
+
+  const W = mapImageWidth, H = mapImageHeight;
+  [cMap, cGrid, cWalls, cOverlay].forEach(c => {
+    c.width = W; c.height = H;
+    c.style.width = W + 'px'; c.style.height = H + 'px';
+  });
+  document.getElementById('canvas-viewport').style.width = W + 'px';
+  document.getElementById('canvas-viewport').style.height = H + 'px';
+
+  ctxMap  = cMap.getContext('2d');
+  ctxGrid = cGrid.getContext('2d');
+  ctxWalls= cWalls.getContext('2d');
+  ctxOver = cOverlay.getContext('2d');
+
+  // Draw map image once
+  ctxMap.clearRect(0, 0, W, H);
+  if (mapImg) {
+    ctxMap.imageSmoothingEnabled = false;
+    ctxMap.drawImage(mapImg, 0, 0, W, H);
+  } else {
+    ctxMap.fillStyle = '#252a45';
+    ctxMap.fillRect(0, 0, W, H);
+  }
+
+  // Interaction events
+  cOverlay.addEventListener('mousedown', onMouseDown);
+  cOverlay.addEventListener('mousemove', onMouseMove);
+  cOverlay.addEventListener('mouseup',   onMouseUp);
+  cOverlay.addEventListener('mouseleave', onMouseUp);
+  cOverlay.addEventListener('wheel', onWheel, { passive: false });
+  cOverlay.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+function fitToView() {
+  const area = document.getElementById('canvas-area');
+  const aW = area.clientWidth - 40;
+  const aH = area.clientHeight - 40;
+  const scaleX = aW / mapImageWidth;
+  const scaleY = aH / mapImageHeight;
+  zoom = Math.min(scaleX, scaleY, 4);
+  panX = (area.clientWidth  - mapImageWidth  * zoom) / 2;
+  panY = (area.clientHeight - mapImageHeight * zoom) / 2;
+  applyViewport();
+}
+
+function applyViewport() {
+  const vp = document.getElementById('canvas-viewport');
+  vp.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  document.getElementById('info-zoom').textContent = Math.round(zoom * 100) + '%';
+  document.getElementById('zoom-display').textContent = Math.round(zoom * 100) + '%';
+}
+
+// ── REDRAW ──
+function redrawGrid() {
+  const W = mapImageWidth, H = mapImageHeight;
+  ctxGrid.clearRect(0, 0, W, H);
+  ctxGrid.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctxGrid.lineWidth = 0.5;
+  for (let x = 0; x <= gridW; x++) {
+    ctxGrid.beginPath(); ctxGrid.moveTo(x * tileSize, 0); ctxGrid.lineTo(x * tileSize, H); ctxGrid.stroke();
+  }
+  for (let y = 0; y <= gridH; y++) {
+    ctxGrid.beginPath(); ctxGrid.moveTo(0, y * tileSize); ctxGrid.lineTo(W, y * tileSize); ctxGrid.stroke();
+  }
+}
+
+function redrawWalls() {
+  const W = mapImageWidth, H = mapImageHeight;
+  ctxWalls.clearRect(0, 0, W, H);
+
+  // Draw walls
+  ctxWalls.fillStyle = 'rgba(220, 80, 80, 0.65)';
+  ctxWalls.strokeStyle = 'rgba(255, 110, 110, 0.9)';
+  ctxWalls.lineWidth = 0.5;
+  for (const key of Object.keys(walls)) {
+    const [gx, gy] = key.split(',').map(Number);
+    const px = gx * tileSize, py = gy * tileSize;
+    ctxWalls.fillRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
+    ctxWalls.strokeRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
+  }
+
+  // Draw spawn points
+  for (const sp of spawnPoints) {
+    const cx = sp.x * tileSize + tileSize / 2;
+    const cy = sp.y * tileSize + tileSize / 2;
+    const r = tileSize * 0.35;
+    ctxWalls.beginPath();
+    ctxWalls.arc(cx, cy, r, 0, Math.PI * 2);
+    ctxWalls.fillStyle = 'rgba(91, 227, 192, 0.75)';
+    ctxWalls.fill();
+    ctxWalls.strokeStyle = '#5be3c0';
+    ctxWalls.lineWidth = 1;
+    ctxWalls.stroke();
+  }
+
+  // Update counters
+  document.getElementById('info-walls').textContent = Object.keys(walls).length;
+  document.getElementById('info-spawns').textContent = spawnPoints.length;
+}
+
+function redrawAll() { redrawGrid(); redrawWalls(); }
+
+// ── HOVER OVERLAY ──
+function drawHoverCell(gx, gy) {
+  const W = mapImageWidth, H = mapImageHeight;
+  ctxOver.clearRect(0, 0, W, H);
+  if (gx < 0 || gy < 0 || gx >= gridW || gy >= gridH) return;
+  const px = gx * tileSize, py = gy * tileSize;
+  if (currentTool === 'wall') {
+    ctxOver.fillStyle = 'rgba(220, 80, 80, 0.35)';
+  } else if (currentTool === 'erase') {
+    ctxOver.fillStyle = 'rgba(226, 75, 74, 0.25)';
+  } else {
+    ctxOver.fillStyle = 'rgba(91, 227, 192, 0.35)';
+  }
+  ctxOver.fillRect(px, py, tileSize, tileSize);
+  ctxOver.strokeStyle = currentTool === 'erase' ? 'rgba(226,75,74,0.7)' : currentTool === 'spawn' ? '#5be3c0' : 'rgba(255,110,110,0.7)';
+  ctxOver.lineWidth = 1;
+  ctxOver.strokeRect(px + 0.5, py + 0.5, tileSize - 1, tileSize - 1);
+}
+
+// ── CANVAS COORDS ──
+function screenToCanvas(e) {
+  const rect = cOverlay.getBoundingClientRect();
+  // rect already accounts for zoom via CSS transform
+  const cx = (e.clientX - rect.left) / zoom * zoom; // = e.clientX - rect.left (raw canvas px)
+  const rawX = e.clientX - rect.left;
+  const rawY = e.clientY - rect.top;
+  // Canvas coord = rawX / zoom? No — getBoundingClientRect gives scaled size
+  // actual canvas pixel = rawX * (canvas.width / rect.width)
+  const scaleX = cOverlay.width / rect.width;
+  const scaleY = cOverlay.height / rect.height;
+  return { x: rawX * scaleX, y: rawY * scaleY };
+}
+
+function canvasToGrid(cx, cy) {
+  return { gx: Math.floor(cx / tileSize), gy: Math.floor(cy / tileSize) };
+}
+
+// ── INTERACTION ──
+function applyTool(gx, gy) {
+  if (gx < 0 || gy < 0 || gx >= gridW || gy >= gridH) return;
+  const key = `${gx},${gy}`;
+  if (currentTool === 'wall') {
+    walls[key] = true;
+  } else if (currentTool === 'erase') {
+    delete walls[key];
+    // also remove spawn if any
+    spawnPoints = spawnPoints.filter(s => !(s.x === gx && s.y === gy));
+  } else if (currentTool === 'spawn') {
+    // Only one spawn per cell, add if not already
+    if (!spawnPoints.find(s => s.x === gx && s.y === gy)) {
+      spawnPoints.push({ x: gx, y: gy });
+    }
+  }
+  redrawWalls();
+}
+
+function onMouseDown(e) {
+  if (e.button === 1 || e.button === 2) {
+    // Pan with middle/right mouse
+    isPanning = true;
+    panStart = { x: e.clientX - panX, y: e.clientY - panY };
+    cOverlay.style.cursor = 'grabbing';
+    return;
+  }
+  isDrawing = true;
+  const { x, y } = screenToCanvas(e);
+  const { gx, gy } = canvasToGrid(x, y);
+  lastDrawCell = `${gx},${gy}`;
+  applyTool(gx, gy);
+}
+
+function onMouseMove(e) {
+  if (isPanning) {
+    panX = e.clientX - panStart.x;
+    panY = e.clientY - panStart.y;
+    applyViewport();
+    return;
+  }
+  const { x, y } = screenToCanvas(e);
+  const { gx, gy } = canvasToGrid(x, y);
+  document.getElementById('info-cursor').textContent = `${gx}, ${gy}`;
+  drawHoverCell(gx, gy);
+
+  if (isDrawing) {
+    const key = `${gx},${gy}`;
+    if (key !== lastDrawCell) {
+      lastDrawCell = key;
+      applyTool(gx, gy);
+    }
+  }
+}
+
+function onMouseUp(e) {
+  if (isPanning) {
+    isPanning = false;
+    cOverlay.style.cursor = 'crosshair';
+    return;
+  }
+  isDrawing = false;
+  lastDrawCell = null;
+}
+
+function onWheel(e) {
+  e.preventDefault();
+  const area = document.getElementById('canvas-area');
+  const rect = area.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const delta = e.deltaY > 0 ? 0.85 : 1.18;
+  const newZoom = Math.min(Math.max(zoom * delta, 0.1), 16);
+
+  // Zoom towards mouse position
+  panX = mouseX - (mouseX - panX) * (newZoom / zoom);
+  panY = mouseY - (mouseY - panY) * (newZoom / zoom);
+  zoom = newZoom;
+  applyViewport();
+}
+
+// ── ZOOM BUTTONS ──
+document.getElementById('zoom-in-btn').addEventListener('click', () => {
+  zoom = Math.min(zoom * 1.3, 16); applyViewport();
+});
+document.getElementById('zoom-out-btn').addEventListener('click', () => {
+  zoom = Math.max(zoom * 0.77, 0.1); applyViewport();
+});
+document.getElementById('zoom-reset-btn').addEventListener('click', fitToView);
+
+// ── TOOLS ──
+document.getElementById('tool-wall').addEventListener('click', () => setTool('wall'));
+document.getElementById('tool-erase').addEventListener('click', () => setTool('erase'));
+document.getElementById('tool-spawn').addEventListener('click', () => setTool('spawn'));
+
+function setTool(name) {
+  currentTool = name;
+  ['wall','erase','spawn'].forEach(t => {
+    document.getElementById(`tool-${t}`).classList.remove('active');
+  });
+  document.getElementById(`tool-${name}`).classList.add('active');
+}
+
+// ── CLEAR ──
+document.getElementById('clear-walls-btn').addEventListener('click', () => {
+  if (!confirm('Xóa toàn bộ tường?')) return;
+  walls = {}; redrawWalls(); showToast('Đã xóa tất cả tường.', 'info');
+});
+document.getElementById('clear-spawns-btn').addEventListener('click', () => {
+  if (!confirm('Xóa toàn bộ điểm spawn?')) return;
+  spawnPoints = []; redrawWalls(); showToast('Đã xóa điểm spawn.', 'info');
+});
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyW' || e.code === 'Digit1') setTool('wall');
+  if (e.code === 'KeyE' || e.code === 'Digit2') setTool('erase');
+  if (e.code === 'KeyS' || e.code === 'Digit3') setTool('spawn');
+  if (e.code === 'Equal' || e.code === 'NumpadAdd') { zoom = Math.min(zoom * 1.2, 16); applyViewport(); }
+  if (e.code === 'Minus' || e.code === 'NumpadSubtract') { zoom = Math.max(zoom * 0.83, 0.1); applyViewport(); }
+  if (e.code === 'KeyF') fitToView();
+  if (e.code === 'KeyZ' && e.ctrlKey) { /* undo placeholder */ }
+});
+
+// ──────────────────────────────────────────────
+// PUBLISH
+// ──────────────────────────────────────────────
+document.getElementById('publish-btn').addEventListener('click', openPublishModal);
+document.getElementById('pub-cancel').addEventListener('click', closePublishModal);
+
+function openPublishModal() {
+  if (currentStep < 2) { showToast('Hoàn thiện bước 1 trước!', 'error'); return; }
+  document.getElementById('pub-map-name').value = mapName;
+  document.getElementById('pub-grid-info').textContent = `${gridW} × ${gridH} ô`;
+  document.getElementById('pub-wall-count').textContent = Object.keys(walls).length;
+  document.getElementById('pub-spawn-count').textContent = spawnPoints.length;
+  document.getElementById('publish-modal').classList.add('open');
+}
+
+function closePublishModal() {
+  document.getElementById('publish-modal').classList.remove('open');
+}
+
+document.getElementById('pub-confirm').addEventListener('click', async () => {
+  if (!currentUser) { showToast('Cần đăng nhập!', 'error'); return; }
+  const finalName = document.getElementById('pub-map-name').value.trim() || 'Không tên';
+  if (spawnPoints.length === 0) {
+    showToast('⚠️ Chưa có điểm spawn! Hãy thêm ít nhất 1 điểm spawn.', 'error');
+    closePublishModal(); return;
+  }
+
+  const btn = document.getElementById('pub-confirm');
+  btn.textContent = '⏳ Đang đăng...'; btn.disabled = true;
+
+  // Convert walls to Firebase-safe object: "x_y": true
+  const blockedSpaces = {};
+  for (const key of Object.keys(walls)) {
+    const safe = key.replace(',', 'x');  // "3,7" → "3x7"
+    blockedSpaces[safe] = true;
+  }
+
+  const mapData = {
+    name: finalName,
+    imageUrl: mapImageUrl,
+    tileSize: tileSize,
+    gridWidth: gridW,
+    gridHeight: gridH,
+    blockedSpaces,
+    spawnPoints,
+    creatorId: currentUser.uid,
+    creatorName: (playerData && playerData.name) || currentUser.email || 'Ẩn danh',
+    createdAt: Date.now(),
+    playCount: 0,
+    onlineCount: 0,
+  };
+
+  try {
+    const ref = await firebase.database().ref('maps').push(mapData);
+    showToast('🎉 Map đã được đăng lên hệ thống!', 'success');
+    closePublishModal();
+    btn.textContent = '✅ Đăng ngay'; btn.disabled = false;
+    setTimeout(() => { window.location.href = 'home.html'; }, 1800);
+  } catch(e) {
+    showToast('Lỗi: ' + e.message, 'error');
+    btn.textContent = '✅ Đăng ngay'; btn.disabled = false;
+  }
+});
+
+// ── STEP TAB CLICKS ──
+document.getElementById('tab-step1').addEventListener('click', () => {
+  if (currentStep === 2) {
+    // go back to step 1 to adjust
+    currentStep = 1;
+    document.getElementById('step1-panel').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('canvas-viewport').style.display = 'none';
+    document.getElementById('zoom-hint').style.display = 'none';
+    document.getElementById('publish-btn').classList.remove('visible');
+    document.getElementById('tab-step1').classList.add('active');
+    document.getElementById('tab-step1').classList.remove('done');
+    document.getElementById('tab-step2').classList.remove('active');
+  }
+});
+</script>
+</body>
+</html>
