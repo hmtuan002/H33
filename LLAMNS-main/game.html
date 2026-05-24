@@ -1216,8 +1216,21 @@ function startFirebaseListeners() {
     const uid = snap.key;
     if (uid === playerId) return;
     players[uid] = p;
-    if (!playerElements[uid]) createPlayerEl(uid, p);
-    else updatePlayerNameEl(uid);
+    if (!playerElements[uid]) {
+      createPlayerEl(uid, p);
+    } else {
+      const el = playerElements[uid];
+      // Cập nhật vị trí realtime
+      const rpx = p.px !== undefined ? p.px - TILE/2 : p.x * TILE;
+      const rpy = p.py !== undefined ? p.py - TILE/2 - 4 : p.y * TILE - 4;
+      el.style.transform = `translate3d(${rpx}px, ${rpy}px, 0)`;
+      el.setAttribute('data-direction', p.direction || 'right');
+      el.setAttribute('data-color', p.color || 'blue');
+      const nameEl = el.querySelector('.Character_name');
+      const coinEl = el.querySelector('.Character_coins');
+      if (nameEl) nameEl.textContent = p.name || '?';
+      if (coinEl) coinEl.textContent = p.coins || 0;
+    }
   });
 
   mapPlayersRef.on('child_removed', snap => {
