@@ -915,9 +915,13 @@ async function seedDemoMapsIfEmpty() {
   }
 }
 
+
+  
 firebase.auth().onAuthStateChanged(user => {
   if (user) seedDemoMapsIfEmpty();
 });
 </script>
 </body>
 </html>
+
+
