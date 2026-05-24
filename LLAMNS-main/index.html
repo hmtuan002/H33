@@ -1,296 +1,87 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>GameVerse - Thế Giới Game Online</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Be+Vietnam+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+<html>
+  <head>
+    <title>Multiplayer Demo - Nón Lá Việt Nam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" type="text/css">
+  </head>
+  <body>
 
-  <!-- ══════════════════════════════════════════
-       PAGE: AUTH
-  ══════════════════════════════════════════ -->
-  <div id="page-auth" class="page active">
-    <div class="auth-bg">
-      <div class="auth-particles" id="auth-particles"></div>
-    </div>
-    <div class="auth-container">
-      <div class="auth-logo">
-        <span class="logo-icon">⬡</span>
-        <h1 class="logo-text">GAME<span class="logo-accent">VERSE</span></h1>
-      </div>
-      <p class="auth-tagline">Thế giới game do bạn tạo ra</p>
-
-      <div class="auth-card" id="auth-login-panel">
-        <h2>ĐĂNG NHẬP</h2>
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="auth-email" placeholder="your@email.com" autocomplete="email">
-        </div>
-        <div class="auth-field">
-          <label>Mật khẩu</label>
-          <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
-        </div>
-        <div class="auth-error" id="auth-error"></div>
-        <button class="btn-primary" id="btn-login">ĐĂNG NHẬP</button>
-        <button class="btn-ghost" id="btn-anon">Chơi ẩn danh</button>
-        <p class="auth-switch">Chưa có tài khoản? <a href="#" id="link-to-register">Đăng ký ngay</a></p>
-      </div>
-
-      <div class="auth-card hidden" id="auth-register-panel">
-        <h2>ĐĂNG KÝ</h2>
-        <div class="auth-field">
-          <label>Tên hiển thị</label>
-          <input type="text" id="reg-name" placeholder="TÊN CỦA BẠN" maxlength="12">
-        </div>
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
-        </div>
-        <div class="auth-field">
-          <label>Mật khẩu</label>
-          <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password">
-        </div>
-        <div class="auth-error" id="reg-error"></div>
-        <button class="btn-primary" id="btn-register">TẠO TÀI KHOẢN</button>
-        <p class="auth-switch">Đã có tài khoản? <a href="#" id="link-to-login">Đăng nhập</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       PAGE: HOME
-  ══════════════════════════════════════════ -->
-  <div id="page-home" class="page">
-    <header class="home-header">
-      <div class="header-logo">
-        <span class="logo-icon-sm">⬡</span>
-        <span class="logo-text-sm">GAME<span class="logo-accent">VERSE</span></span>
-      </div>
-      <nav class="header-nav">
-        <button class="nav-btn active" data-tab="maps">🗺️ Thế Giới</button>
-        <button class="nav-btn" data-tab="avatar">👤 Avatar</button>
-      </nav>
-      <div class="header-user">
-        <span class="header-coins">💰 <span id="home-coins">0</span></span>
-        <span class="header-name" id="home-username">GUEST</span>
-        <button class="btn-logout" id="btn-logout">↪</button>
-      </div>
-    </header>
-
-    <!-- TAB: MAPS -->
-    <div class="home-tab active" id="tab-maps">
-      <div class="tab-hero">
-        <h2>🌍 KHÁM PHÁ THẾ GIỚI</h2>
-        <p>Chọn một map để bắt đầu cuộc phiêu lưu</p>
-        <button class="btn-create-map" id="btn-go-create">
-          <span>+</span> TẠO MAP MỚI
-        </button>
-      </div>
-      <div class="maps-grid" id="maps-grid">
-        <div class="map-loading">Đang tải các thế giới...</div>
-      </div>
-    </div>
-
-    <!-- TAB: AVATAR -->
-    <div class="home-tab" id="tab-avatar">
-      <div class="avatar-layout">
-        <div class="avatar-preview-panel">
-          <h3>AVATAR CỦA BẠN</h3>
-          <div class="avatar-showcase" id="avatar-showcase">
-            <div class="avatar-display" id="avatar-display">
-              <div class="av-shadow"></div>
-              <div class="av-sprite" id="av-sprite"></div>
-            </div>
-            <div class="avatar-name-tag" id="avatar-name-tag">PLAYER</div>
-          </div>
-          <div class="avatar-coins-info">
-            💰 Xu của bạn: <strong id="avatar-coins-display">0</strong>
-          </div>
-        </div>
-        <div class="skin-shop-panel">
-          <h3>🎨 CỬA HÀNG SKIN</h3>
-          <div class="skin-grid" id="home-skin-grid"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       PAGE: CREATE MAP
-  ══════════════════════════════════════════ -->
-  <div id="page-create" class="page">
-    <div class="create-header">
-      <button class="btn-back" id="btn-back-from-create">← Quay lại</button>
-      <h2 class="create-title">🗺️ TẠO MAP MỚI</h2>
-      <div class="create-steps">
-        <span class="step active" data-step="1">1. Hình nền</span>
-        <span class="step-arrow">›</span>
-        <span class="step" data-step="2">2. Kích thước</span>
-        <span class="step-arrow">›</span>
-        <span class="step" data-step="3">3. Tường</span>
-        <span class="step-arrow">›</span>
-        <span class="step" data-step="4">4. Publish</span>
-      </div>
-    </div>
-
-    <!-- STEP 1: Image URL -->
-    <div class="create-step-panel active" id="create-step-1">
-      <div class="step-content">
-        <h3>Nhập link hình nền cho map</h3>
-        <p class="step-hint">Sử dụng link ảnh trực tiếp (jpg, png, gif). Ảnh sẽ được dùng làm nền map của bạn.</p>
-        <div class="url-input-group">
-          <input type="text" id="map-image-url" placeholder="https://example.com/map-image.png">
-          <button class="btn-primary" id="btn-load-image">TẢI ẢNH</button>
-        </div>
-        <div class="map-name-group">
-          <label>Tên map</label>
-          <input type="text" id="map-name-input" placeholder="Tên map của bạn" maxlength="30">
-        </div>
-        <div class="url-preview" id="url-preview">
-          <div class="url-preview-placeholder">Ảnh xem trước sẽ hiển thị ở đây</div>
-        </div>
-        <button class="btn-primary btn-next" id="btn-step1-next" disabled>Tiếp theo →</button>
-      </div>
-    </div>
-
-    <!-- STEP 2: Unit size calibration -->
-    <div class="create-step-panel" id="create-step-2">
-      <div class="step-content">
-        <h3>Hiệu chỉnh đơn vị kích thước</h3>
-        <p class="step-hint">Kéo góc của khối vuông vàng để điều chỉnh kích thước 1 ô tọa độ trên map. Khối càng nhỏ → map có nhiều ô hơn.</p>
-        <div class="calibration-info" id="calibration-info">
-          Map: <strong id="cal-map-size">?×?</strong> px →
-          Đơn vị: <strong id="cal-unit-size">?×?</strong> px →
-          Lưới: <strong id="cal-grid-size">?×?</strong> ô
-        </div>
-        <div class="calibration-canvas-wrap" id="calibration-canvas-wrap">
-          <canvas id="calibration-canvas"></canvas>
-        </div>
-        <div class="calibration-controls">
-          <label>Kích thước đơn vị: <strong id="unit-px-display">32</strong> px</label>
-          <input type="range" id="unit-size-slider" min="8" max="128" value="32" step="1">
-        </div>
-        <div class="step-nav">
-          <button class="btn-ghost" id="btn-step2-back">← Quay lại</button>
-          <button class="btn-primary" id="btn-step2-next">Tiếp theo →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: Wall editor -->
-    <div class="create-step-panel" id="create-step-3">
-      <div class="wall-editor-layout">
-        <div class="wall-toolbar">
-          <div class="tool-group">
-            <h4>CÔNG CỤ</h4>
-            <button class="tool-btn active" data-tool="draw" title="Vẽ tường">🧱 Vẽ</button>
-            <button class="tool-btn" data-tool="erase" title="Xóa tường">🗑️ Xóa</button>
-            <button class="tool-btn" data-tool="spawn" title="Điểm spawn">🏁 Spawn</button>
-          </div>
-          <div class="tool-group">
-            <h4>THAO TÁC</h4>
-            <button class="tool-btn" id="btn-clear-walls">🔄 Xóa hết</button>
-          </div>
-          <div class="wall-stats" id="wall-stats">
-            Tường: <strong id="wall-count">0</strong><br>
-            Spawn: <strong id="spawn-set">Chưa đặt</strong>
-          </div>
-          <div class="step-nav-vertical">
-            <button class="btn-ghost" id="btn-step3-back">← Back</button>
-            <button class="btn-primary" id="btn-step3-next">Tiếp →</button>
-          </div>
-        </div>
-        <div class="wall-canvas-wrap" id="wall-canvas-wrap">
-          <canvas id="wall-canvas"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 4: Publish -->
-    <div class="create-step-panel" id="create-step-4">
-      <div class="step-content publish-panel">
-        <h3>🚀 Publish Map</h3>
-        <div class="publish-summary" id="publish-summary"></div>
-        <div class="publish-form">
-          <label>Mô tả map (tùy chọn)</label>
-          <textarea id="map-description" placeholder="Mô tả ngắn về map của bạn..." maxlength="120" rows="3"></textarea>
-        </div>
-        <div class="publish-error" id="publish-error"></div>
-        <div class="step-nav">
-          <button class="btn-ghost" id="btn-step4-back">← Quay lại</button>
-          <button class="btn-primary btn-publish" id="btn-publish">🚀 PUBLISH MAP</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       PAGE: GAME
-  ══════════════════════════════════════════ -->
-  <div id="page-game" class="page">
-    <!-- Camera system -->
+    <!-- CAMERA WRAPPER - clips the zoomed map -->
     <div class="camera-wrapper">
       <div class="camera-pan" id="camera-pan">
-        <div class="game-container" id="game-container"></div>
+        <div class="game-container">
+        </div>
       </div>
     </div>
-
-    <!-- HUD Top Left -->
-    <div class="game-hud-tl">
-      <button class="btn-leave-game" id="btn-leave-game">← Thoát</button>
-      <div class="game-map-name" id="game-map-name">Loading...</div>
+    
+    <!-- COORDINATE DISPLAY -->
+    <div class="coord-display" id="coord-display">
+      📍 X: -- | Y: --
     </div>
-
-    <!-- HUD Top Right -->
-    <div class="game-hud-tr">
-      <div class="hud-stat">💰 <span id="game-coins">0</span></div>
-      <div class="hud-stat">📍 <span id="game-coords">0,0</span></div>
-    </div>
-
-    <!-- Chat Panel -->
-    <div class="chat-panel" id="chat-panel">
-      <div class="chat-tabs">
-        <button class="chat-tab active" data-scope="world">🌍 Thế giới</button>
-        <button class="chat-tab" data-scope="map">🗺️ Map này</button>
-        <button class="chat-tab chat-toggle-btn" id="chat-toggle">▼</button>
+    
+    <!-- PLAYER INFO -->
+    <div class="player-info">
+      <div>
+        <label for="player-name">🏷️ Tên của bạn</label>
+        <input id="player-name" maxlength="10" type="text" />
       </div>
-      <div class="chat-messages" id="chat-messages"></div>
-      <div class="chat-input-row">
-        <input type="text" id="chat-input" placeholder="Nhắn tin..." maxlength="80" autocomplete="off">
-        <button class="btn-send" id="btn-send-chat">→</button>
+      <div class="coin-display">
+        <label>💰 Xu</label>
+        <div id="player-coins" class="coin-amount">0</div>
       </div>
     </div>
-
+    
     <!-- Mobile Joystick -->
     <div class="joystick-container" id="joystick-container">
       <div class="joystick-base" id="joystick-base">
         <div class="joystick-thumb" id="joystick-thumb"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
-      authDomain: "vvss-b7a49.firebaseapp.com",
-      databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "vvss-b7a49",
-      storageBucket: "vvss-b7a49.firebasestorage.app",
-      messagingSenderId: "562837285603",
-      appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-  <script src="KeyPressListener.js"></script>
-  <script src="Joystick.js"></script>
-  <script src="app.js"></script>
-</body>
+    <!-- Merchant Modal (giữ nguyên) -->
+    <div id="merchant-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🎨 CỬA HÀNG SKIN 🎨</h2>
+          <span id="close-modal" class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p id="merchant-message" class="merchant-message">Chào mừng! Mua skin bằng xu của bạn!</p>
+          <div class="skin-shop-grid" id="skin-shop-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POKÉMON-STYLE NPC Dialogue Box (không overlay, ở đáy màn hình) -->
+    <div id="npc-dialogue-box">
+      <div class="poke-dialogue-inner" id="poke-inner">
+        <div class="poke-speaker">🎋 LÃO NHÂN</div>
+        <p class="poke-text" id="poke-text"></p>
+        <div class="poke-arrow" id="poke-arrow"></div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAq52d5zrc5rN6UFflwb22bJD9GSjdS0ts",
+        authDomain: "vvss-b7a49.firebaseapp.com",
+        databaseURL: "https://vvss-b7a49-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "vvss-b7a49",
+        storageBucket: "vvss-b7a49.firebasestorage.app",
+        messagingSenderId: "562837285603",
+        appId: "1:562837285603:web:e75d7a983e1ef644c9b3d6",
+        measurementId: "G-BRSGSK6MSM"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="KeyPressListener.js"></script>
+    <script src="Joystick.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
