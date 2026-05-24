@@ -1,505 +1,796 @@
-* {
-  box-sizing: border-box;
+/* ═══════════════════════════════════════════════════
+   GAMEVERSE - GLOBAL STYLES
+   Aesthetic: Cyberpunk-arcade meets Vietnamese warmth
+   Font: Orbitron (display) + Be Vietnam Pro (body)
+═══════════════════════════════════════════════════ */
+
+:root {
+  --c-bg:        #0a0b14;
+  --c-surface:   #111320;
+  --c-surface2:  #1a1e35;
+  --c-border:    #2a2f50;
+  --c-accent:    #ffd700;
+  --c-accent2:   #ff6b35;
+  --c-blue:      #4fc3f7;
+  --c-green:     #69f0ae;
+  --c-text:      #e8eaf6;
+  --c-text-dim:  #8a90b4;
+  --c-danger:    #ff5252;
+  --c-wall:      rgba(255,107,53,0.7);
+  --r:           8px;
+  --shadow-glow: 0 0 20px rgba(255,215,0,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--c-bg);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--c-text);
+  overflow: hidden;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
-  font-family: 'Source Sans Pro', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: fixed;
+/* ── PAGE ROUTING ─────────────────────────────── */
+.page { display: none; width: 100%; height: 100%; position: fixed; top: 0; left: 0; }
+.page.active { display: flex; flex-direction: column; }
+#page-auth.active { display: flex; }
+#page-game.active { display: block; }
+.hidden { display: none !important; }
+
+/* ── SHARED COMPONENTS ────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, var(--c-accent), #ffaa00);
+  color: #111; font-family: 'Orbitron', sans-serif;
+  font-weight: 700; font-size: 0.8rem; letter-spacing: 1px;
+  border: none; border-radius: var(--r);
+  padding: 12px 24px; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.4); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ghost {
+  background: transparent; color: var(--c-text-dim);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  padding: 10px 20px; cursor: pointer; font-size: 0.85rem;
+  transition: all 0.2s; font-family: 'Be Vietnam Pro', sans-serif;
+}
+.btn-ghost:hover { border-color: var(--c-accent); color: var(--c-accent); }
+
+/* ══════════════════════════════════════════════════
+   AUTH PAGE
+══════════════════════════════════════════════════ */
+#page-auth {
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.auth-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, #1a1060 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, #0d2a40 0%, transparent 50%),
+              var(--c-bg);
+}
+.auth-particles {
+  position: absolute; inset: 0; overflow: hidden;
+}
+.auth-particle {
+  position: absolute; width: 2px; height: 2px;
+  background: var(--c-accent); border-radius: 50%;
+  animation: particleDrift linear infinite;
+  opacity: 0;
+}
+@keyframes particleDrift {
+  0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) translateX(60px); opacity: 0; }
+}
+
+.auth-container {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  width: 100%; max-width: 420px; padding: 20px;
+}
+.auth-logo {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 4px;
+}
+.logo-icon { font-size: 2.5rem; filter: drop-shadow(0 0 10px var(--c-accent)); }
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem; font-weight: 900;
+  color: var(--c-text); letter-spacing: 3px;
+}
+.logo-accent { color: var(--c-accent); }
+.logo-icon-sm { font-size: 1.2rem; filter: drop-shadow(0 0 6px var(--c-accent)); }
+.logo-text-sm {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem; font-weight: 900; letter-spacing: 2px;
+}
+.auth-tagline {
+  color: var(--c-text-dim); font-size: 0.9rem; letter-spacing: 1px;
+}
+.auth-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 16px; padding: 28px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), var(--shadow-glow);
+}
+.auth-card h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem; letter-spacing: 3px;
+  color: var(--c-accent); text-align: center;
+  margin-bottom: 20px;
+}
+.auth-field { margin-bottom: 14px; }
+.auth-field label {
+  display: block; font-size: 0.75rem; font-weight: 600;
+  color: var(--c-text-dim); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 6px;
+}
+.auth-field input {
+  width: 100%; background: var(--c-surface2);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  color: var(--c-text); font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.95rem; padding: 10px 14px;
+  outline: none; transition: border-color 0.2s;
+  user-select: text;
+}
+.auth-field input:focus { border-color: var(--c-accent); }
+.auth-error {
+  color: var(--c-danger); font-size: 0.8rem; margin-bottom: 10px;
+  min-height: 18px; text-align: center;
+}
+.auth-card .btn-primary { width: 100%; margin-bottom: 10px; padding: 13px; }
+.auth-card .btn-ghost { width: 100%; margin-bottom: 10px; }
+.auth-switch { text-align: center; color: var(--c-text-dim); font-size: 0.85rem; }
+.auth-switch a { color: var(--c-accent); text-decoration: none; font-weight: 600; }
+.auth-switch a:hover { text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════
+   HOME PAGE
+══════════════════════════════════════════════════ */
+#page-home { overflow: hidden; }
+.home-header {
+  display: flex; align-items: center;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 10px 20px; gap: 16px;
+  flex-shrink: 0; z-index: 10;
+}
+.header-logo { display: flex; align-items: center; gap: 8px; }
+.header-nav { display: flex; gap: 4px; flex: 1; justify-content: center; }
+.nav-btn {
+  background: transparent; border: 1px solid transparent;
+  color: var(--c-text-dim); border-radius: var(--r);
+  padding: 8px 18px; cursor: pointer; font-size: 0.85rem;
+  font-family: 'Be Vietnam Pro', sans-serif; font-weight: 600;
+  transition: all 0.2s;
+}
+.nav-btn.active, .nav-btn:hover {
+  background: var(--c-surface2); border-color: var(--c-border);
+  color: var(--c-accent);
+}
+.header-user { display: flex; align-items: center; gap: 10px; }
+.header-coins {
+  background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85rem; color: var(--c-accent); font-weight: 600;
+}
+.header-name {
+  font-family: 'Orbitron', sans-serif; font-size: 0.75rem;
+  letter-spacing: 1px; color: var(--c-text);
+}
+.btn-logout {
+  background: transparent; border: 1px solid var(--c-border);
+  color: var(--c-text-dim); border-radius: var(--r);
+  width: 32px; height: 32px; cursor: pointer;
+  font-size: 1rem; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-logout:hover { border-color: var(--c-danger); color: var(--c-danger); }
+
+.home-tab { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+.home-tab.active { display: block; }
+
+.tab-hero {
+  text-align: center; margin-bottom: 32px; padding: 32px;
+  background: linear-gradient(135deg, var(--c-surface) 0%, var(--c-surface2) 100%);
+  border-radius: 16px; border: 1px solid var(--c-border);
+  position: relative; overflow: hidden;
+}
+.tab-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,215,0,0.05) 0%, transparent 70%);
+}
+.tab-hero h2 {
+  font-family: 'Orbitron', sans-serif; font-size: 1.5rem;
+  letter-spacing: 3px; color: var(--c-accent); margin-bottom: 8px;
+}
+.tab-hero p { color: var(--c-text-dim); margin-bottom: 20px; }
+.btn-create-map {
+  background: linear-gradient(135deg, var(--c-accent2), #ff3d00);
+  color: white; border: none; border-radius: var(--r);
+  padding: 12px 28px; cursor: pointer;
+  font-family: 'Orbitron', sans-serif; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 2px;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-create-map span { font-size: 1.4rem; line-height: 1; }
+.btn-create-map:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,53,0.4); }
+
+.maps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.map-loading {
+  grid-column: 1/-1; text-align: center;
+  color: var(--c-text-dim); padding: 40px; font-size: 0.9rem;
+}
+.map-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 14px; overflow: hidden; cursor: pointer;
+  transition: all 0.25s; position: relative;
+}
+.map-card:hover { transform: translateY(-4px); border-color: var(--c-accent); box-shadow: var(--shadow-glow); }
+.map-card-thumb {
+  width: 100%; height: 140px; object-fit: cover;
+  display: block; background: var(--c-surface2);
+}
+.map-card-thumb-placeholder {
+  width: 100%; height: 140px;
+  background: linear-gradient(135deg, #1a2040, #0d1230);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+}
+.map-card-body { padding: 14px; }
+.map-card-name {
+  font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+  letter-spacing: 1px; color: var(--c-text); margin-bottom: 4px;
+}
+.map-card-meta {
+  font-size: 0.75rem; color: var(--c-text-dim); margin-bottom: 8px;
+}
+.map-card-desc { font-size: 0.8rem; color: var(--c-text-dim); }
+.map-card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-top: 1px solid var(--c-border);
+}
+.map-online-badge {
+  font-size: 0.7rem; color: var(--c-green);
+  display: flex; align-items: center; gap: 4px;
+}
+.map-online-dot {
+  width: 6px; height: 6px; background: var(--c-green);
+  border-radius: 50%; animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+.btn-play {
+  background: var(--c-accent); color: #111;
+  border: none; border-radius: 6px;
+  padding: 5px 14px; font-weight: 700; font-size: 0.75rem;
+  cursor: pointer; font-family: 'Orbitron', sans-serif;
+  transition: all 0.2s;
+}
+.btn-play:hover { background: #ffee55; }
+
+/* AVATAR TAB */
+.avatar-layout {
+  display: grid; grid-template-columns: 300px 1fr;
+  gap: 24px; height: 100%; max-height: calc(100vh - 60px); overflow: hidden;
+}
+.avatar-preview-panel {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.avatar-preview-panel h3, .skin-shop-panel h3 {
+  font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+  letter-spacing: 2px; color: var(--c-accent);
+}
+.avatar-showcase {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 24px;
+  background: radial-gradient(ellipse at center, rgba(255,215,0,0.08) 0%, transparent 70%);
+  border-radius: 12px; border: 1px dashed var(--c-border);
   width: 100%;
 }
-
-/* Camera wrapper — full screen, clips the map */
-.camera-wrapper {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* Camera pan layer — translate only, NO scale here */
-.camera-pan {
-  position: absolute;
-  top: 0; left: 0;
-  pointer-events: auto;
-  will-change: transform;
-}
-
-/* Scale-only layer — scale only, NO translate here */
-.game-container { 
-  position: relative;
-  width: 240px;
-  height: 208px;
-  background: url(images/map.png) no-repeat no-repeat;
+.avatar-display {
+  position: relative; width: 64px; height: 64px;
   image-rendering: pixelated;
-  transform: scale(4);
-  transform-origin: top left;
+  transform: scale(3); margin: 30px 0;
 }
-
-/* Mobile Controls - Chỉ joystick */
-.joystick-container {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  z-index: 100;
-  display: none;
+.av-shadow {
+  background: url(images/shadow.png) no-repeat; width: 16px; height: 16px;
+  position: absolute; top: 0; left: 24px;
 }
-
-.joystick-base {
-  width: 120px;
-  height: 120px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  backdrop-filter: blur(8px);
-  border: 3px solid rgba(255, 215, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+.av-sprite {
+  background: url(images/characters.png) no-repeat;
+  width: 16px; height: 16px; position: absolute; top: -3px; left: 24px;
 }
-
-.joystick-thumb {
-  width: 55px;
-  height: 55px;
-  background: radial-gradient(circle, #ffd700 0%, #ffaa00 100%);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.05s linear;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.5);
+.avatar-name-tag {
+  font-family: 'Orbitron', sans-serif; font-size: 0.7rem;
+  letter-spacing: 2px; color: var(--c-text);
+  background: var(--c-surface2); border-radius: 4px;
+  padding: 3px 10px;
 }
-
-@media (max-width: 768px) {
-  .joystick-container {
-    display: block;
-  }
-  .mobile-controls {
-    display: none !important;
-  }
+.avatar-coins-info {
+  color: var(--c-text-dim); font-size: 0.85rem; text-align: center;
 }
+.avatar-coins-info strong { color: var(--c-accent); }
 
-/* Characters */
-.grid-cell {
-  position: absolute;
-  width: 16px;
-  height: 16px;
+.skin-shop-panel {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 16px; padding: 24px;
+  overflow-y: auto;
 }
-
-.Character {
-  position: absolute;
+.skin-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px; margin-top: 16px;
 }
-
-.Character.you {
-  z-index: 2;
+.skin-card {
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 16px 12px;
+  text-align: center; transition: all 0.2s; cursor: pointer;
 }
-
-.Character.you .Character_you-arrow {
-  display: block;
+.skin-card:hover { border-color: var(--c-accent); transform: translateY(-2px); }
+.skin-card.equipped { border-color: var(--c-green); background: rgba(105,240,174,0.05); }
+.skin-card-preview {
+  position: relative; width: 16px; height: 16px;
+  margin: 0 auto 28px; image-rendering: pixelated; transform: scale(2.5);
 }
-
-.Character_you-arrow {
-  display: none;
-  position: absolute;
-  top: -18px;
-  left: 5px;
-  width: 7px;
-  height: 5px;
-  background: url(images/arrow.png) no-repeat no-repeat;
+.skin-card-preview .sk-shadow {
+  background: url(images/shadow.png) no-repeat; width: 16px; height: 16px; position: absolute;
 }
-
-.Character_sprite {
-  overflow: hidden;
-  top: -3px;
-  background: url(images/characters.png);
-  position: absolute;
-  width: 16px;
-  height: 16px;
-}
-
-.Character[data-direction="right"] .Character_sprite {
+.skin-card-preview .sk-sprite {
+  background: url(images/characters.png) no-repeat; width: 16px; height: 16px;
+  position: absolute; top: -3px;
   background-position-x: 16px;
 }
+.skin-card-name {
+  font-family: 'Orbitron', sans-serif; font-size: 0.65rem;
+  letter-spacing: 1px; color: var(--c-text); margin-bottom: 8px;
+}
+.skin-card-btn {
+  background: linear-gradient(135deg, var(--c-accent), #ffaa00);
+  color: #111; border: none; border-radius: 6px;
+  padding: 6px 10px; font-weight: 700; font-size: 0.7rem;
+  cursor: pointer; width: 100%; transition: all 0.2s;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.skin-card-btn:disabled { background: var(--c-surface); color: var(--c-text-dim); cursor: default; }
+.skin-card-btn.equipped-btn { background: rgba(105,240,174,0.2); color: var(--c-green); }
+.skin-card-btn.use-btn { background: rgba(79,195,247,0.2); color: var(--c-blue); }
+.skin-card-btn:hover:not(:disabled) { transform: scale(1.03); }
 
-.Character[data-color="blue"] .Character_sprite { background-position-y: 0px; }
-.Character[data-color="red"] .Character_sprite { background-position-y: -16px; }
+/* ══════════════════════════════════════════════════
+   CREATE PAGE
+══════════════════════════════════════════════════ */
+#page-create { overflow: hidden; background: var(--c-bg); }
+.create-header {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--c-surface); border-bottom: 1px solid var(--c-border);
+  padding: 12px 20px; flex-shrink: 0;
+}
+.btn-back {
+  background: transparent; border: 1px solid var(--c-border);
+  color: var(--c-text-dim); border-radius: var(--r);
+  padding: 7px 14px; cursor: pointer; font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.btn-back:hover { border-color: var(--c-accent); color: var(--c-accent); }
+.create-title {
+  font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+  letter-spacing: 2px; color: var(--c-accent); flex: 1; text-align: center;
+}
+.create-steps {
+  display: flex; align-items: center; gap: 6px; font-size: 0.75rem;
+}
+.step {
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--c-border); color: var(--c-text-dim);
+  transition: all 0.3s;
+}
+.step.active { border-color: var(--c-accent); color: var(--c-accent); background: rgba(255,215,0,0.1); }
+.step.done { border-color: var(--c-green); color: var(--c-green); }
+.step-arrow { color: var(--c-border); }
+
+.create-step-panel {
+  display: none; flex: 1; overflow: hidden;
+  width: 100%; height: calc(100vh - 57px);
+}
+.create-step-panel.active { display: flex; }
+
+/* Step content wrapper for non-canvas steps */
+.step-content {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  padding: 32px; width: 100%; overflow-y: auto;
+  max-width: 700px; margin: 0 auto;
+}
+.step-content h3 {
+  font-family: 'Orbitron', sans-serif; font-size: 1rem;
+  letter-spacing: 2px; color: var(--c-text);
+}
+.step-hint {
+  color: var(--c-text-dim); font-size: 0.85rem;
+  text-align: center; max-width: 500px; line-height: 1.6;
+}
+.url-input-group {
+  display: flex; gap: 10px; width: 100%;
+}
+.url-input-group input {
+  flex: 1; background: var(--c-surface2);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  color: var(--c-text); padding: 10px 14px; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+  user-select: text; font-family: 'Be Vietnam Pro', sans-serif;
+}
+.url-input-group input:focus { border-color: var(--c-accent); }
+.map-name-group { width: 100%; }
+.map-name-group label {
+  display: block; font-size: 0.75rem; color: var(--c-text-dim);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+.map-name-group input {
+  width: 100%; background: var(--c-surface2);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  color: var(--c-text); padding: 10px 14px; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+  user-select: text; font-family: 'Be Vietnam Pro', sans-serif;
+}
+.map-name-group input:focus { border-color: var(--c-accent); }
+
+.url-preview {
+  width: 100%; min-height: 180px; max-height: 300px;
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: var(--r); display: flex; align-items: center;
+  justify-content: center; overflow: hidden;
+}
+.url-preview-placeholder { color: var(--c-text-dim); font-size: 0.85rem; }
+.url-preview img { max-width: 100%; max-height: 300px; object-fit: contain; }
+.btn-next { margin-top: 8px; }
+
+/* Step 2 - Calibration */
+.calibration-info {
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: var(--r); padding: 10px 20px;
+  font-size: 0.85rem; color: var(--c-text-dim); text-align: center;
+}
+.calibration-info strong { color: var(--c-accent); }
+.calibration-canvas-wrap {
+  flex: 1; width: 100%; overflow: auto;
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  background: #000; position: relative;
+  max-height: 50vh;
+  display: flex; align-items: center; justify-content: center;
+}
+#calibration-canvas {
+  image-rendering: pixelated;
+  cursor: crosshair;
+  display: block;
+}
+.calibration-controls {
+  display: flex; flex-direction: column; gap: 8px;
+  width: 100%; align-items: center;
+}
+.calibration-controls label {
+  font-size: 0.85rem; color: var(--c-text-dim);
+}
+.calibration-controls label strong { color: var(--c-accent); }
+#unit-size-slider {
+  width: 300px; accent-color: var(--c-accent);
+}
+.step-nav { display: flex; gap: 12px; margin-top: 8px; }
+
+/* Step 3 - Wall editor */
+.wall-editor-layout {
+  display: flex; width: 100%; height: 100%;
+}
+.wall-toolbar {
+  width: 160px; flex-shrink: 0;
+  background: var(--c-surface); border-right: 1px solid var(--c-border);
+  padding: 16px 12px; display: flex; flex-direction: column; gap: 12px;
+  overflow-y: auto;
+}
+.tool-group h4 {
+  font-family: 'Orbitron', sans-serif; font-size: 0.6rem;
+  letter-spacing: 2px; color: var(--c-text-dim); margin-bottom: 8px;
+}
+.tool-btn {
+  width: 100%; background: var(--c-surface2);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  color: var(--c-text); padding: 8px 10px; cursor: pointer;
+  font-size: 0.8rem; text-align: left; transition: all 0.2s;
+  font-family: 'Be Vietnam Pro', sans-serif; margin-bottom: 4px;
+}
+.tool-btn.active, .tool-btn:hover {
+  border-color: var(--c-accent); color: var(--c-accent);
+  background: rgba(255,215,0,0.08);
+}
+.wall-stats {
+  font-size: 0.78rem; color: var(--c-text-dim); line-height: 1.8;
+  padding: 10px; background: var(--c-surface2); border-radius: var(--r);
+}
+.wall-stats strong { color: var(--c-text); }
+.step-nav-vertical {
+  display: flex; flex-direction: column; gap: 8px; margin-top: auto;
+}
+.step-nav-vertical .btn-ghost,
+.step-nav-vertical .btn-primary {
+  width: 100%; font-size: 0.75rem; padding: 9px;
+}
+.wall-canvas-wrap {
+  flex: 1; overflow: auto; background: #000;
+  display: flex; align-items: flex-start; justify-content: flex-start;
+}
+#wall-canvas {
+  image-rendering: pixelated;
+  cursor: crosshair; display: block;
+}
+
+/* Step 4 - Publish */
+.publish-panel { max-width: 500px; }
+.publish-summary {
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: var(--r); padding: 16px; width: 100%;
+  font-size: 0.85rem; line-height: 2; color: var(--c-text-dim);
+}
+.publish-summary strong { color: var(--c-text); }
+.publish-form { width: 100%; }
+.publish-form label {
+  display: block; font-size: 0.75rem; color: var(--c-text-dim);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+.publish-form textarea {
+  width: 100%; background: var(--c-surface2);
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  color: var(--c-text); padding: 10px 14px; font-size: 0.9rem;
+  outline: none; resize: vertical;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  user-select: text;
+}
+.publish-form textarea:focus { border-color: var(--c-accent); }
+.publish-error { color: var(--c-danger); font-size: 0.85rem; min-height: 20px; }
+.btn-publish { font-size: 0.9rem; padding: 14px 36px; }
+
+/* ══════════════════════════════════════════════════
+   GAME PAGE
+══════════════════════════════════════════════════ */
+#page-game { overflow: hidden; position: relative; }
+
+.camera-wrapper {
+  position: fixed; inset: 0; overflow: hidden; pointer-events: none;
+}
+.camera-pan {
+  position: absolute; top: 0; left: 0;
+  pointer-events: auto; will-change: transform;
+}
+.game-container {
+  position: relative; image-rendering: pixelated;
+  transform-origin: top left;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/* Game HUD */
+.game-hud-tl {
+  position: fixed; top: 10px; left: 10px; z-index: 100;
+  display: flex; align-items: center; gap: 10px;
+}
+.btn-leave-game {
+  background: rgba(0,0,0,0.7); border: 1px solid var(--c-border);
+  color: var(--c-text); border-radius: var(--r);
+  padding: 7px 14px; cursor: pointer; font-size: 0.8rem;
+  backdrop-filter: blur(8px); transition: all 0.2s;
+}
+.btn-leave-game:hover { border-color: var(--c-danger); color: var(--c-danger); }
+.game-map-name {
+  background: rgba(0,0,0,0.7); border: 1px solid var(--c-border);
+  color: var(--c-accent); border-radius: var(--r);
+  padding: 7px 14px; font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem; letter-spacing: 1px;
+  backdrop-filter: blur(8px);
+}
+.game-hud-tr {
+  position: fixed; top: 10px; right: 10px; z-index: 100;
+  display: flex; gap: 8px;
+}
+.hud-stat {
+  background: rgba(0,0,0,0.7); border: 1px solid var(--c-border);
+  color: var(--c-text); border-radius: var(--r);
+  padding: 7px 12px; font-size: 0.8rem;
+  backdrop-filter: blur(8px);
+}
+
+/* Chat Panel */
+.chat-panel {
+  position: fixed; bottom: 0; left: 0; z-index: 200;
+  width: 300px; max-height: 320px;
+  background: rgba(10,11,20,0.92); border: 1px solid var(--c-border);
+  border-radius: 0 12px 0 0; backdrop-filter: blur(12px);
+  display: flex; flex-direction: column;
+  transition: max-height 0.3s ease;
+}
+.chat-panel.collapsed { max-height: 36px; }
+.chat-tabs {
+  display: flex; border-bottom: 1px solid var(--c-border); flex-shrink: 0;
+}
+.chat-tab {
+  flex: 1; background: transparent; border: none;
+  color: var(--c-text-dim); padding: 8px 6px; cursor: pointer;
+  font-size: 0.7rem; transition: all 0.2s;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.chat-tab.active { color: var(--c-accent); border-bottom: 2px solid var(--c-accent); }
+.chat-toggle-btn { flex: 0 0 32px; font-size: 0.7rem; }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 180px;
+}
+.chat-messages::-webkit-scrollbar { width: 3px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 2px; }
+.chat-msg {
+  font-size: 0.78rem; line-height: 1.4; padding: 3px 6px;
+  border-radius: 4px;
+}
+.chat-msg .msg-author {
+  font-weight: 700; margin-right: 6px;
+}
+.chat-msg.world-msg .msg-author { color: var(--c-blue); }
+.chat-msg.map-msg .msg-author { color: var(--c-green); }
+.chat-msg.sys-msg { color: var(--c-text-dim); font-style: italic; font-size: 0.72rem; }
+.chat-msg .msg-text { color: var(--c-text); }
+.chat-msg .msg-scope {
+  font-size: 0.65rem; color: var(--c-text-dim);
+  background: var(--c-surface2); border-radius: 3px; padding: 1px 4px;
+  margin-right: 4px;
+}
+.chat-input-row {
+  display: flex; border-top: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+#chat-input {
+  flex: 1; background: transparent; border: none;
+  color: var(--c-text); padding: 8px 10px; font-size: 0.82rem;
+  outline: none; font-family: 'Be Vietnam Pro', sans-serif;
+  user-select: text;
+}
+.btn-send {
+  background: var(--c-accent); color: #111; border: none;
+  padding: 8px 14px; cursor: pointer; font-weight: 700;
+  font-size: 0.9rem; transition: background 0.2s;
+}
+.btn-send:hover { background: #ffee55; }
+
+/* Chat bubble above player */
+.chat-bubble {
+  position: absolute;
+  background: rgba(255,255,255,0.95);
+  color: #111; border-radius: 8px;
+  padding: 3px 7px; font-size: 5px; font-weight: 600;
+  white-space: nowrap; max-width: 80px;
+  overflow: hidden; text-overflow: ellipsis;
+  z-index: 20; pointer-events: none;
+  top: -18px; left: 50%; transform: translateX(-50%);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  animation: bubblePop 0.2s ease;
+}
+.chat-bubble::after {
+  content: ''; position: absolute;
+  top: 100%; left: 50%; transform: translateX(-50%);
+  border: 3px solid transparent;
+  border-top-color: rgba(255,255,255,0.95);
+}
+@keyframes bubblePop {
+  from { transform: translateX(-50%) scale(0.7); opacity: 0; }
+  to   { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* Joystick */
+.joystick-container {
+  position: fixed; bottom: 30px; left: 30px; z-index: 100; display: none;
+}
+.joystick-base {
+  width: 110px; height: 110px;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,215,0,0.5);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.joystick-thumb {
+  width: 48px; height: 48px;
+  background: radial-gradient(circle, var(--c-accent) 0%, #ffaa00 100%);
+  border-radius: 50%; cursor: pointer;
+  box-shadow: 0 0 12px rgba(255,215,0,0.5);
+  transition: transform 0.05s linear;
+}
+@media (max-width: 768px) { .joystick-container { display: block; } }
+
+/* Game Characters */
+.Character { position: absolute; }
+.Character.you { z-index: 10; }
+.Character_sprite {
+  overflow: hidden; background: url(images/characters.png);
+  position: absolute; width: 16px; height: 16px; top: -3px;
+}
+.Character[data-direction="right"] .Character_sprite { background-position-x: 16px; }
+.Character[data-color="blue"]   .Character_sprite { background-position-y: 0px; }
+.Character[data-color="red"]    .Character_sprite { background-position-y: -16px; }
 .Character[data-color="orange"] .Character_sprite { background-position-y: -32px; }
 .Character[data-color="yellow"] .Character_sprite { background-position-y: -48px; }
-.Character[data-color="green"] .Character_sprite { background-position-y: -64px; }
+.Character[data-color="green"]  .Character_sprite { background-position-y: -64px; }
 .Character[data-color="purple"] .Character_sprite { background-position-y: -80px; }
-
 .Character_shadow {
-  background: url(images/shadow.png) no-repeat no-repeat;
-  position: absolute;
-  width: 16px;
-  height: 16px;
+  background: url(images/shadow.png) no-repeat;
+  position: absolute; width: 16px; height: 16px;
 }
-
 .Character_name-container {
-  position: absolute;
-  top: -12px;
-  left: -5px;
-  font-size: 5px;
-  padding: 1px 2px 1px;
-  border-radius: 3px;
-  background: #333;
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-  white-space: nowrap;
-  z-index: 10;
+  position: absolute; top: -12px; left: -5px;
+  font-size: 4.5px; padding: 1px 3px; border-radius: 3px;
+  background: rgba(0,0,0,0.75); color: white;
+  font-weight: 700; text-transform: uppercase;
+  white-space: nowrap; z-index: 10;
+  font-family: 'Be Vietnam Pro', sans-serif;
 }
+.Character_you-arrow {
+  display: none; position: absolute; top: -18px; left: 5px;
+  width: 7px; height: 5px;
+  background: url(images/arrow.png) no-repeat;
+}
+.Character.you .Character_you-arrow { display: block; }
 
-.Character_coins {
-  margin-left: 1px;
-  color: gold;
-}
-
-/* Merchant */
-.merchant {
-  position: absolute;
-  z-index: 2;
-  cursor: pointer;
-}
-.merchant .Character_name-container {
-  background: #8B4513;
-  font-size: 4px;
-  top: -14px;
-}
-
-/* NPC Elder */
-.npc-elder {
-  position: absolute;
-  z-index: 2;
-  cursor: pointer;
-}
-.npc-elder .Character_name-container {
-  background: #2E7D32;
-  font-size: 4px;
-  top: -14px;
+/* Wall blocks in game */
+.wall-block {
+  position: absolute; background: rgba(255,107,53,0.25);
+  border: 1px solid rgba(255,107,53,0.5);
+  pointer-events: none;
 }
 
 /* Coins */
 .Coin { position: absolute; }
-
 .Coin_sprite {
-  background: url(images/coin.png) no-repeat no-repeat;
+  background: url(images/coin.png) no-repeat;
   animation: coinFloat 0.8s linear infinite alternate-reverse;
-  position: absolute;
-  width: 16px;
-  height: 16px;
+  position: absolute; width: 16px; height: 16px;
 }
-
 @keyframes coinFloat {
   from { transform: translateY(0); }
-  to { transform: translateY(5px); }
+  to { transform: translateY(4px); }
 }
-
 .Coin_shadow {
-  background: url(images/coin-shadow.png) no-repeat no-repeat;
-  position: absolute;
-  width: 16px;
-  height: 16px;
+  background: url(images/coin-shadow.png) no-repeat;
+  position: absolute; width: 16px; height: 16px;
 }
 
-/* Coordinate Display */
-.coord-display {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.85);
-  color: #00ff88;
-  font-family: monospace;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  z-index: 999;
-  border: 1px solid #00ff88;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
+/* Skin colors for avatar page */
+[data-color="blue"]   .sk-sprite { background-position-y: 0px; }
+[data-color="red"]    .sk-sprite { background-position-y: -16px; }
+[data-color="orange"] .sk-sprite { background-position-y: -32px; }
+[data-color="yellow"] .sk-sprite { background-position-y: -48px; }
+[data-color="green"]  .sk-sprite { background-position-y: -64px; }
+[data-color="purple"] .sk-sprite { background-position-y: -80px; }
 
-/* Player Info */
-.player-info {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 8px 12px;
-  border-radius: 12px;
-  backdrop-filter: blur(5px);
-  border: 1px solid #ffd700;
-  z-index: 200;
-  flex-wrap: wrap;
-}
+/* Scrollbar global */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--c-surface); }
+::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-accent); }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .player-info {
-    top: 5px; left: 5px;
-    padding: 5px 8px;
-    gap: 5px;
-  }
-  .player-info > div { padding: 3px 6px; }
-  label { font-size: 8px; }
-  input[type="text"] { font-size: 10px; height: 22px; width: 80px; }
-  .coin-amount { font-size: 12px; }
-}
-
-.player-info > div {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid #ffd700;
-}
-
-label {
-  display: block;
-  font-weight: bold;
-  color: #ffd700;
-  font-size: 10px;
-  margin-bottom: 2px;
-}
-
-input[type="text"] {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 12px;
-  height: 28px;
-  border-radius: 4px;
-  outline: 0;
-  padding-left: 0.5em;
-  border: 2px solid #222034;
-  width: 100px;
-  text-transform: uppercase;
-  background: #fff;
-}
-
-.coin-display { text-align: center; min-width: 70px; }
-
-.coin-amount {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 1px 1px 0 #333;
-}
-
-/* ========================================
-   MERCHANT MODAL (giữ nguyên kiểu cũ)
-   ======================================== */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(3px);
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 550px;
-  border: 3px solid #ffd700;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  animation: modalSlideIn 0.3s ease-out;
-}
-
-@media (max-width: 768px) {
-  .modal-content { width: 95%; max-width: 95%; margin: 10px; }
-  .modal-header h2 { font-size: 1rem; }
-  .skin-shop-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
-  .skin-item { padding: 8px; }
-  .skin-preview { transform: scale(1.5); }
-  .skin-name { font-size: 0.7rem; }
-  .skin-buy-btn { font-size: 0.65rem; padding: 6px 8px; }
-}
-
-@keyframes modalSlideIn {
-  from { transform: translateY(-50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 2px solid #ffd700;
-  background: linear-gradient(135deg, #3a2a0a 0%, #2a1a0a 100%);
-  border-radius: 13px 13px 0 0;
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: #ffd700;
-  font-size: 1.3rem;
-  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-  letter-spacing: 2px;
-}
-
-.close {
-  color: #ffd700;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  line-height: 1;
-}
-.close:hover { color: #ff6600; transform: scale(1.2); }
-
-.modal-body { padding: 20px; }
-
-.merchant-message {
-  text-align: center;
-  color: #ffd700;
-  font-weight: bold;
-  margin-bottom: 20px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-.skin-shop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
-}
-
-.skin-item {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  transition: 0.2s;
-  border: 2px solid #444;
-}
-.skin-item:hover { transform: translateY(-3px); border-color: #ffd700; }
-
-.skin-preview {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 10px;
-  transform: scale(2);
-  image-rendering: pixelated;
-}
-.skin-preview .Character_sprite { top: -3px; left: 0; }
-.skin-preview .Character_shadow { top: 0; left: 0; }
-
-.skin-name {
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  margin-bottom: 8px;
-}
-
-.skin-buy-btn {
-  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.75rem;
-  transition: 0.2s;
-  color: #333;
-  width: 100%;
-}
-.skin-buy-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 2px 8px rgba(255,215,0,0.5); }
-.skin-buy-btn:disabled { background: #555; cursor: not-allowed; color: #999; transform: none; }
-
-/* ========================================
-   POKÉMON-STYLE DIALOGUE BOX
-   ======================================== */
-#npc-dialogue-box {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 500;
-  /* No background overlay — game stays fully visible */
-}
-
-.poke-dialogue-inner {
-  margin: 0 12px 12px;
-  background: #f0f0f0;
-  border: 4px solid #1a1a2e;
-  border-radius: 8px;
-  padding: 14px 18px 12px;
-  position: relative;
-  box-shadow: 0 -4px 0 #888, inset 0 2px 0 #fff;
-  min-height: 90px;
-}
-
-/* Speaker name tag */
-.poke-speaker {
-  position: absolute;
-  top: -18px;
-  left: 18px;
-  background: #1a1a2e;
-  color: #fff;
-  font-weight: bold;
-  font-size: 12px;
-  padding: 2px 10px;
-  border-radius: 4px 4px 0 0;
-  letter-spacing: 1px;
-}
-
-.poke-text {
-  font-size: 14px;
-  color: #1a1a2e;
-  line-height: 1.5;
-  font-weight: bold;
-  font-family: 'Source Sans Pro', sans-serif;
-  min-height: 50px;
-}
-
-/* Blinking arrow indicator */
-.poke-arrow {
-  position: absolute;
-  bottom: 10px;
-  right: 14px;
-  width: 0; height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 10px solid #1a1a2e;
-  animation: pokeArrowBlink 0.6s step-end infinite;
-}
-
-@keyframes pokeArrowBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-/* When on last line — hide blink arrow, show done */
-.poke-dialogue-inner.last-line .poke-arrow {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .poke-dialogue-inner {
-    margin: 0 6px 6px;
-    padding: 12px 14px 10px;
-    min-height: 80px;
-  }
-  .poke-text { font-size: 12px; }
-  .poke-speaker { font-size: 10px; }
+  .create-steps { display: none; }
+  .avatar-layout { grid-template-columns: 1fr; }
+  .chat-panel { width: calc(100vw - 10px); }
+  .maps-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .home-header { padding: 8px 12px; }
+  .header-name { display: none; }
 }
