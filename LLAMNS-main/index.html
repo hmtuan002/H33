@@ -8,8 +8,10 @@
   </head>
   <body>
 
-    <!-- GAME CONTAINER -->
-    <div class="game-container">
+    <!-- CAMERA WRAPPER - clips the zoomed map -->
+    <div class="camera-wrapper">
+      <div class="game-container">
+      </div>
     </div>
     
     <!-- COORDINATE DISPLAY -->
@@ -17,7 +19,7 @@
       📍 X: -- | Y: --
     </div>
     
-    <!-- PLAYER INFO - GÓC TRÊN BÊN TRÁI -->
+    <!-- PLAYER INFO -->
     <div class="player-info">
       <div>
         <label for="player-name">🏷️ Tên của bạn</label>
@@ -29,14 +31,14 @@
       </div>
     </div>
     
-    <!-- Mobile Joystick Controls - CHỈ JOYSTICK, KHÔNG CÓ NÚT LÊN XUỐNG -->
+    <!-- Mobile Joystick -->
     <div class="joystick-container" id="joystick-container">
       <div class="joystick-base" id="joystick-base">
         <div class="joystick-thumb" id="joystick-thumb"></div>
       </div>
     </div>
 
-    <!-- Merchant Modal -->
+    <!-- Merchant Modal (giữ nguyên) -->
     <div id="merchant-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -45,29 +47,17 @@
         </div>
         <div class="modal-body">
           <p id="merchant-message" class="merchant-message">Chào mừng! Mua skin bằng xu của bạn!</p>
-          <div class="skin-shop-grid" id="skin-shop-list">
-            <!-- Skins will be dynamically added here -->
-          </div>
+          <div class="skin-shop-grid" id="skin-shop-list"></div>
         </div>
       </div>
     </div>
 
-    <!-- NPC Dialogue Modal -->
-    <div id="npc-modal" class="modal">
-      <div class="modal-content npc-modal-content">
-        <div class="modal-header npc-modal-header">
-          <h2>🎋 NÓN LÁ VIỆT NAM 🎋</h2>
-          <span id="close-npc-modal" class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          <div class="dialogue-box" id="dialogue-box">
-            <p id="dialogue-text" class="dialogue-text"></p>
-            <div class="dialogue-controls">
-              <button id="next-dialogue-btn" class="dialogue-next-btn">➡ Tiếp theo</button>
-              <button id="close-dialogue-btn" class="dialogue-close-btn">✖ Đóng</button>
-            </div>
-          </div>
-        </div>
+    <!-- POKÉMON-STYLE NPC Dialogue Box (không overlay, ở đáy màn hình) -->
+    <div id="npc-dialogue-box">
+      <div class="poke-dialogue-inner" id="poke-inner">
+        <div class="poke-speaker">🎋 LÃO NHÂN</div>
+        <p class="poke-text" id="poke-text"></p>
+        <div class="poke-arrow" id="poke-arrow"></div>
       </div>
     </div>
 
